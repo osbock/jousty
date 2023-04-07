@@ -1,4 +1,22 @@
-	processor 6502
+; Source code of Joust version July 5th 1983 converted into DASM format
+; Coversion done by Thomas Jentzsch in November 2016
+
+ORIGINAL    = 0     ; 0 enables real bankswitching and
+                    ; disables develoment system support code
+
+    processor 6502
+
+
+;*         2600    JOUST             JULY05.S
+;
+;******   *     *     ****    *      *    ****    ******     *     *  *****
+;*        *     *    *    *   **     *   *    *   *          **   **  *
+;*        *     *    *    *   * *    *   *        *          * * * *  *
+;*        *******    ******   *  *   *   *        *****      *  *  *  ****
+;*        *     *    *    *   *   *  *   *  ****  *          *     *  *
+;*        *     *    *    *   *    * *   *    *   *          *     *  *
+;******   *     *    *    *   *     **    ****    ******     *     *  *****
+
 
 ;THIS IS THE NECESSARY PROLOG FOR STELLA (TIA) CODE
 
@@ -74,7 +92,7 @@ INPT3     EQU     $3B
 INPT4     EQU     $3C
 INPT5     EQU     $3D
 
-/************   CONSTANTS   ****************/
+;***********;*   CONSTANTS   ****************
 PFCOLOR1  EQU     $28
 PFCOLOR2  EQU     $26
 PFCOLOR3  EQU     $24
@@ -83,6 +101,7 @@ HEIGHT    EQU     5
 UPPER     EQU     $34                    ;UPPER ZONE BOUNDARY
 LOWER     EQU     $6C                    ;LOWER ZONE BOUNDARY
 ;ZERO PAGE RAM
+          SEG.U   variables
           ORG     $80
 FRMCNT    DS      1
 LIVES     DS      2
@@ -121,7 +140,7 @@ BOTDEX    EQU     P1HPOS+1
 P0CNT     DS      1
 P1CNT     DS      1
 COLOR0    DS      3
-SCNTRLI0  EQU     COLOR0+0		 ; SOUND CONTROL INPUT 0 
+SCNTRLI0  EQU     COLOR0+0               ;SOUND CONTROL INPUT 0
 SCNTRLI1  EQU     COLOR0+1               ;SOUND CONTROL INPUT 1
 COLOR1    DS      3
 INFP0     DS      3
@@ -139,9 +158,9 @@ PREVIOUS  EQU     TEMP2
 TEMP3     DS      1
 MPTR      EQU     TEMP3
 ZONECNT   DS      1
-CFIGINDX  DS      1		;INDEX INTO CLIFF CONFIGURATIONS
-XPOS      DS      8		;X POSSITION FOR ALL MOVABLE OBJECTS
-YPOSINT   DS      8		;INTEGER Y 
+CFIGINDX  DS      1                      ;INDEX INTO CLIFF CONFIGURATIONS
+XPOS      DS      8                      ;X POSSITION FOR ALL MOVABLE OBJECTS
+YPOSINT   DS      8                      ;INTEGER Y " "   "   "       "
 STATES    DS      2                      ;BIT  7        FACING
                                          ;BIT   6       WALKING FOR PLAYERS
                                          ;BIT    5      FLY/SKID FOR PLAYERS
@@ -161,23 +180,23 @@ SPEED     DS      6
 ASPEED    DS      6                      ;VERTICAL SPEED
 EGGO      DS      6
 EGGSCORE  DS      2
-YVELINT   DS      2		;PLAYER Y VELOCITY INTEGER
+YVELINT   DS      2                      ;PLAYER Y VELOCITY INTEGER
 PDTHSNUM  EQU     YVELINT
-BIRTHAN   EQU     YVELINT	;BIRTH ANIMATION COUNTER
-SHLDSEC   EQU     YVELINT	;SHEILD SECOND
-YVELFRAC  DS      2		;PLAYER Y VELOCITY FRAC
+BIRTHAN   EQU     YVELINT                ;BIRTH ANIMATION COUNTER
+SHLDSEC   EQU     YVELINT                ;SHEILD SECOND
+YVELFRAC  DS      2                      ;PLAYER Y VELOCITY FRAC
 PDETHTIM  EQU     YVELFRAC
-SHLDTIM   EQU     YVELFRAC	;SHEILD TIMER
-PGONETIM  EQU     YVELFRAC	;PLAYER GONE TIMER
-BIRTHTIM  EQU     YVELFRAC	;BIRTH TIMER
+SHLDTIM   EQU     YVELFRAC               ;SHEILD TIMER
+PGONETIM  EQU     YVELFRAC               ;PLAYER GONE TIMER
+BIRTHTIM  EQU     YVELFRAC               ;BIRTH TIMER
 ENEMA     DS      1                      ;NUMBER OF ENEMIES
 
 
 
-SNDTIM0   DS      1		;TIMER   SOUND 0
-SNDTIM1   DS      1		;TIMER   SOUND 1
-SNDINDX0  DS      1		;SOUND INDEX 0
-SNDINDX1  DS      1		;SOUND INDEX 1
+SNDTIM0   DS      1                      ;TIMER   SOUND 0
+SNDTIM1   DS      1                      ;TIMER   SOUND 1
+SNDINDX0  DS      1                      ;SOUND INDEX 0
+SNDINDX1  DS      1                      ;SOUND INDEX 1
 SNDTYP0   DS      1                      ;SOUND TYPE 0
 SNDTYP1   DS      1                      ;SOUND TYPE 1
 DEPNUM    DS      1                      ;NUMBER OF ENEMIES DEPLOYED
@@ -185,15 +204,15 @@ TOPCNT    DS      1
 MIDCNT    DS      1
 BOTCNT    DS      1
 
-TERYCNT   DS      1		;NUMBER OF TERRIES CURRENTLY OUT
-TERYTIME  DS      1		;TIMER FOR TERRY DEPLOYMENT
-TITIMNDX  DS      1		;INDEX INTO INITIAL TERRY TIMES TABLE
+TERYCNT   DS      1                      ;NUMBER OF TERRIES CURRENTLY OUT
+TERYTIME  DS      1                      ;TIMER FOR TERRY DEPLOYMENT
+TITIMNDX  DS      1                      ;INDEX INTO INITIAL TERRY TIMES TABLE
 GAMETYPE  DS      1                      ;BIT 0 FOR 1 OR 2 PLAYERS
                                          ;BIT 1 FOR REGULAR OR BONZO
 GLADRAG   DS      1                      ;GLADIATOR, SURVIVAL, TEAM FLAGS
                                          ;BIT 7 FOR GLADIATOR
                                          ;BIT 6 FOR SURVIVAL, TEAM
-/*         THESE CONSTANTS ARE THE BITS PATTERNS RETURNED BY PMOTION FOR SOUNDS*/
+;*         THESE CONSTANTS ARE THE BITS PATTERNS RETURNED BY PMOTION FOR SOUNDS
 
 NOTSOUND  EQU     0
 WLKSOUND  EQU     1
@@ -213,7 +232,7 @@ EATEGG    EQU     14
 EXTRAMAN  EQU     15
 
 
-/*         THESE ARE THE CONSTANTS RELATIVE TO PLAYER DEATH AND EXPLOIN ANIMATION*/
+;*         THESE ARE THE CONSTANTS RELATIVE TO PLAYER DEATH AND EXPLOIN ANIMATION
 
 PDETHSTM  EQU     3
 SHIELD    EQU     11
@@ -231,60 +250,60 @@ SHLDITIM  EQU     53
 BRTHITIM  EQU     5
 GONEITIM  EQU     $EE
 
-/*         THE FOLLOWING EQUIVILENCES ARE THE UP AND DOWN TERMINAL VELOCITIES
-*                 ONLY THE INTEGER PART OF THE VELOCITY IS CHECKED; THEREFORE
-*                 THE FOLLOWING ARE THE INTEGER TERMINAL VELOCITIES
-*/
+;*         THE FOLLOWING EQUIVILENCES ARE THE UP AND DOWN TERMINAL VELOCITIES
+;*                 ONLY THE INTEGER PART OF THE VELOCITY IS CHECKED; THEREFORE
+;*                 THE FOLLOWING ARE THE INTEGER TERMINAL VELOCITIES
 
 UPVMAX    EQU     $FD
 DWNVMAX   EQU     $2
 
-/*         THE FOLLOWING CONSTANTS ARE THE BOUNDS ON LEGAL X VALUES FOR A STAMP.
-*                 THERE ARE TWO RIGHTS, SET AND COMPARE.
-*/
+;*         THE FOLLOWING CONSTANTS ARE THE BOUNDS ON LEGAL X VALUES FOR A STAMP.
+;*                 THERE ARE TWO RIGHTS, SET AND COMPARE.
+
 LMOSTPXL  EQU     1
 RMSTSPXL  EQU     126
 RMSTCPXL  EQU     127
 
-/*         THE FOLLOWING CONSTANT IS THE TOP OF SCREEN COMPARISON NUMBER */
+;*         THE FOLLOWING CONSTANT IS THE TOP OF SCREEN COMPARISON NUMBER
 TOPSCNUM  EQU     191
 
-/*         TERRY CONSTANTS */
+;*         TERRY CONSTANTS
 
-TERYFLAG  EQU     $60		;TELLS BADGUY TO DEPLOY TERRY AT FLAG
-LTERYTYP  EQU     $8C		;INITIAL TYPE FOR A LEFT TERRY
-RTERYTYP  EQU     $0C		;INITIAL TYPE FOR A RIGHT TERRY
-LTERYSPD  EQU     4		;INITIAL LEFT TERRY SPEED
-RTERYSPD  EQU     0		;INITIAL RIGHT TERRY SPEED
-ITITI     EQU     4		;INITIAL TERRY INITIAL TIME INDEX
+TERYFLAG  EQU     $60                    ;TELLS BADGUY TO DEPLOY TERRY AT FLAG
+LTERYTYP  EQU     $8C                    ;INITIAL TYPE FOR A LEFT TERRY
+RTERYTYP  EQU     $0C                    ;INITIAL TYPE FOR A RIGHT TERRY
+LTERYSPD  EQU     4                      ;INITIAL LEFT TERRY SPEED
+RTERYSPD  EQU     0                      ;INITIAL RIGHT TERRY SPEED
+ITITI     EQU     4                      ;INITIAL TERRY INITIAL TIME INDEX
 
-/*         THE FOLLOWING ARE BOUNDS FOR DELAY FOR WALK/SKID */
+;*         THE FOLLOWING ARE BOUNDS FOR DELAY FOR WALK/SKID
 
-MAXWDLAY  EQU     12		;MAXIMUM WALK DELAY
-MAXSDLAY  EQU     8		;MAXIMUM SKID DELAY
+MAXWDLAY  EQU     12                     ;MAXIMUM WALK DELAY
+MAXSDLAY  EQU     8                      ;MAXIMUM SKID DELAY
 
-;         THIS IS THE FLYING CLIFF TOP BOUNCE Y FRACTION 
+;*         THIS IS THE FLYING CLIFF TOP BOUNCE Y FRACTION
 
-FBFRAC    EQU     $80		
+FBFRAC    EQU     $80
 
-/*          THE FOLLOWING ARE THE NUMBERS TO SET TO ALLOW AND TEST FOR HAPPENING
-            FIRST EFFECTIVE FLYING FRAME.  THESE GO IN DELAY/EFFECT.
-*/
-	;;
+;*         THE FOLLOWING ARE THE NUMBERS TO SET TO ALLOW AND TEST FOR HAPPENING
+;*                 FIRST EFFECTIVE FLYING FRAME.  THESE GO IN DELAY/EFFECT.
+
 FLYFEFST  EQU     5
 FLYFEFCP  EQU     4
 
 ENDRAM
 
+          SEG     Bank0
+  IF ORIGINAL
+          ORG     $E100
           ORG     $E000
-E000      DC      0                      ;STORE 80 IN HERE TO FREEZE
-E001      DC      0                      ;SLOWDOWN SPEED
-E002      DC      0                      ;TEMP
-E003      DC      0                      ;WHEN FROZEN, NUMBER OF FRAMES TO
+E000      dc      0                      ;STORE 80 IN HERE TO FREEZE
+E001      dc      0                      ;SLOWDOWN SPEED
+E002      dc      0                      ;TEMP
+E003      dc      0                      ;WHEN FROZEN, NUMBER OF FRAMES TO
                                          ;ADVANCE BEFORE STOPPING.  THE SPEED
                                          ;OF ADVANCEMENT IS SET IN E001
 
-          ORG     $E100
 FRZEOS    LDX     E000
           BMI     FREEZER
           DEX
@@ -322,9 +341,11 @@ FRZE      LDX     E003
 HOLDFB    PLA
           PLA
           JMP     DONE
+  ENDIF
 
-/* START OF EXECUTABLE CODE ===================================================== */
-          ORG     $F000
+;* START OF EXECUTABLE CODE =====================================================
+          ORG     $1000
+          RORG    $F000
 
 FBANK     JMP     START
 
@@ -368,42 +389,42 @@ REGDRVER  LDA     FRMCNT
           LDA     #0
           STA     SCNTRLI0
           STA     SCNTRLI1
-/*******************************************************************************
-*                                                                              *
-*         PLAYER 0 MOTION                                                      *
-*                                                                              *
-*******************************************************************************/
+;********************************************************************************
+;*                                                                              *
+;*         PLAYER 0 MOTION                                                      *
+;*                                                                              *
+;********************************************************************************
 
-          BIT     ATTRACT	;IF NOT IN AUTOPLAY GOTO CONTROL READER
+          BIT     ATTRACT                ;IF NOT IN AUTOPLAY GOTO CONTROL READER
 ;         BPL     GPSKP005
 ;         LDA     #0                     ;A IS STILL ZERO
-          BMI     GPSKP010	;ELSE DO AUTOPLAY CONTROL SIMULATION
+          BMI     GPSKP010               ;ELSE DO AUTOPLAY CONTROL SIMULATION
 
-GPSKP005  LDA     SWCHA		;FORMAT CONTROLS INTO ACC 
+GPSKP005  LDA     SWCHA                  ;FORMAT CONTROLS INTO ACC
           EOR     #$F0
-          LSR		
+          LSR
           LSR
           LSR
           LSR
           LDX     INPT4
           BMI     GPSKP010
           ORA     #$80
-GPSKP010  LDX     #0		;SELECT INDEX FOR PLAYER 0
-          JSR     PMOTION	;DO PLAYER 0'S MOTION
-          CMP     SCNTRLI0      ;CHECK FOR PRIORITIES
+GPSKP010  LDX     #0                     ;SELECT INDEX FOR PLAYER 0
+          JSR     PMOTION                ;DO PLAYER 0'S MOTION
+          CMP     SCNTRLI0               ;CHECK FOR PRIORITIES
           BMI     GPSKP011
           STA     SCNTRLI0
 GPSKP011
-/*******************************************************************************
-*                                                                              *
-*         PLAYER 0 / ENEMY COLLISION DETECT                                    *
-*                                                                              *
-*******************************************************************************/
+;********************************************************************************
+;*                                                                              *
+;*         PLAYER 0 / ENEMY COLLISION DETECT                                    *
+;*                                                                              *
+;********************************************************************************
 
           LDX     #0
-          LDA     STAT2,X	;IF PLAYER 0 NOT PRESENT SKIP ENEMY
+          LDA     STAT2,X                ;IF PLAYER 0 NOT PRESENT SKIP ENEMY
           CMP     #SHIELD
-          BPL     ENDHITP0	
+          BPL     ENDHITP0
 
           LDA     FRMCNT
           LSR
@@ -431,11 +452,11 @@ ODD
           JSR     BONK
 ENDHITP0
 
-/********************************************************************************
-*                                                                              *
-*         ENEMY MOTION                                                         *
-*                                                                              *
-********************************************************************************/
+;********************************************************************************
+;*                                                                              *
+;*         ENEMY MOTION                                                         *
+;*                                                                              *
+;********************************************************************************
 
           LDA     FRMCNT
           BNE     PAST1
@@ -444,9 +465,9 @@ ENDHITP0
           CMP     #2
           BCS     JND
 
-          DEC     TERYTIME	;CONDITIONALS, FORCED TERRY DEPLOYMENT
+          DEC     TERYTIME               ;CONDITIONALS, FORCED TERRY DEPLOYMENT
           BPL     TTIME
-	;;
+
           LDA     ENEMA
           BEQ     UNTIME
           CMP     #6
@@ -462,9 +483,9 @@ ENDHITP0
 UNTIME    INC     TERYTIME
           JMP     TTIME
 
-DOTERYFL  LDX     #5		;FLAG AN ENEMY AREA TO DEPLOY A TERRY
+DOTERYFL  LDX     #5                      ;FLAG AN ENEMY AREA TO DEPLOY A TERRY
 NEXTENMY  LDA     TYPE,X
-          BEQ     NOWTERY	
+          BEQ     NOWTERY
           DEX
           BPL     NEXTENMY
           BMI     TTIME
@@ -474,9 +495,9 @@ NOWTERY
           STA     TYPE,X
 
 
-          LDY     TITIMNDX	;SET UP NEW TERRY TIMER
+          LDY     TITIMNDX               ;SET UP NEW TERRY TIMER
           DEY
-          BPL     PTERY100	
+          BPL     PTERY100
           LDY     #1
 PTERY100  STY     TITIMNDX
 
@@ -614,7 +635,7 @@ NOHER1    LDA     XPOS
 CHKHER1   LDA     XPOS+1
 GOAHEAD   CMP     #$40
           BCC     LEFTTER
-          LDA     #RMSTSPXL	;DEPLOY A NEW TERRY ON THE RIGHT
+          LDA     #RMSTSPXL              ;DEPLOY A NEW TERRY ON THE RIGHT
           STA     XPOS+2,X
           LDY     #LTERYTYP
           LDA     #LTERYSPD
@@ -637,7 +658,7 @@ CHSCN1    CMP     SCNTRLI1
 
 JEM       JMP     ENDEMOVE
 
-SPHINX    DC      2,1
+SPHINX    dc      2,1
 
 ;PUT THIS CODE BEFORE CALLS TO BADGUY-- IT DERIVES WHICH ZONES THE HEROES ARE IN
 NODEP
@@ -697,50 +718,50 @@ ODD1
           JSR     BADGUY
 ENDEMOVE
 
-/********************************************************************************/
+;********************************************************************************
 
-          LDA     GAMETYPE	;IF A TWO PLAYER GAME
+          LDA     GAMETYPE               ;IF A TWO PLAYER GAME
           LSR
-          BCC     OWLOOP	
+          BCC     OWLOOP
 
-/********************************************************************************
-*                                                                              *
-*         PLAYER 1 MOTION                                                      *
-*                                                                              *
-********************************************************************************/
+;********************************************************************************
+;*                                                                              *
+;*         PLAYER 1 MOTION                                                      *
+;*                                                                              *
+;********************************************************************************
 
 
 P1MOSHUN
           LDA     #0
-          BIT     ATTRACT	;IF NOT IN AUTOPLAY GOTO CONTROL READER
+          BIT     ATTRACT                ;IF NOT IN AUTOPLAY GOTO CONTROL READER
           BMI     GPSKP020
-	;;
-GPSKP015  LDA     SWCHA		;FORMAT CONTROLS FOR PLAYER 1
+
+GPSKP015  LDA     SWCHA                  ;FORMAT CONTROLS FOR PLAYER 1
           EOR     #$0F
-          AND     #$0F		
+          AND     #$0F
           LDX     INPT5
           BMI     GPSKP020
           ORA     #$80
-GPSKP020  LDX     #1		;SELECT INDEX FOR PLAYER 0
-          JSR     PMOTION	;DO PLAYER 1'S MOTION
-          CMP     SCNTRLI1	;CHECK FOR PRIORITIES
-          BMI     PPCOL		
-          STA     SCNTRLI1	
+GPSKP020  LDX     #1                     ;SELECT INDEX FOR PLAYER 0
+          JSR     PMOTION                ;DO PLAYER 1'S MOTION
+          CMP     SCNTRLI1               ;CHECK FOR PRIORITIES
+          BMI     PPCOL
+          STA     SCNTRLI1
 
 
-/********************************************************************************
-*                                                                              *
-*         PLAYER / PLAYER COLLISION                                            *
-*                                                                              *
-********************************************************************************/
+;********************************************************************************
+;*                                                                              *
+;*         PLAYER / PLAYER COLLISION                                            *
+;*                                                                              *
+;********************************************************************************
 
 PPCOL     LDA     STAT2+0
-          CMP     #SHIELD	;IF PLAYER 0 NOT PRESENT SKIP COLLISIONS
+          CMP     #SHIELD                ;IF PLAYER 0 NOT PRESENT SKIP COLLISIONS
           BPL     PPCOLEND
-          LDA     STAT2+1	
-          CMP     #SHIELD	;IF PLAYER 1 NOT PRESENT SKIP COLLISIONS
+          LDA     STAT2+1
+          CMP     #SHIELD                ;IF PLAYER 1 NOT PRESENT SKIP COLLISIONS
           BPL     PPCOLEND
-	;;
+
           LDX     #0
           LDY     #1
           JSR     NOPUNT
@@ -749,7 +770,7 @@ OWLOOP
           LDA     INTIM
           BNE     OWLOOP
 
-/* VERTICAL BLANK =============================================================== */
+;* VERTICAL BLANK ===============================================================
 
 NOOW      STA     WSYNC
           LDX     #2                     ;2 Turn on vertical sync and blanking
@@ -778,7 +799,7 @@ DOMORE    LDA     FRMCNT                 ;17
           LDX     RACKNUM                ;31
           LDA     RACKLO,X               ;35
           STA     PTR0                   ;38
-          LDA     #>RACK0ENM           ;40
+          LDA     #>(RACK0ENM)           ;40
           STA     PTR0H                  ;43
 
           LDY     ENEMA                  ;46
@@ -836,7 +857,7 @@ BEGBLNK
           LDA     #$2D                   ; (43 decimal) Count vertical blanking
           STA     TIM64T
 
-
+;****
 ;         JSR     FRZEBL                 ;COMMENT THIS OUT FOR NO FREEZE FRAMER
                                          ;OR TO BURN A CART
 
@@ -845,25 +866,25 @@ BEGBLNK
 
 NOTITLE
 
-/********************************************************************************
-*                                                                              *
-*         RACK ADVANCE CONDITIONALS                                            *
-*                                                                              *
-********************************************************************************/
+;********************************************************************************
+;*                                                                              *
+;*         RACK ADVANCE CONDITIONALS                                            *
+;*                                                                              *
+;********************************************************************************
 
 CADVNTRY  LDA     ENEMA
-          BEQ     DECTIMER	;IF ENEMIES DON'T ADVANCE CLIFFS
+          BEQ     DECTIMER               ;IF ENEMIES DON'T ADVANCE CLIFFS
 JCAD      JMP     CADVEXIT
-	;;
 
-DECTIMER  DEC     TIMER		;IF TIMER NOT OUT DON'T ADVANCE
-          BNE     JCAD		;THIS IS ONLY FOR QUICKY ENEMY DEPLOY
-	;;
-/******************************************************************************* 
-*                                                                              *
-*         ADVANCE RACK NUMBER AND CLIFF CONFIGURATION                          *
-*                                                                              *
-********************************************************************************/
+
+DECTIMER  DEC     TIMER                  ;IF TIMER NOT OUT DON'T ADVANCE
+          BNE     JCAD                   ;THIS IS ONLY FOR QUICKY ENEMY DEPLOY
+
+;********************************************************************************
+;*                                                                              *
+;*         ADVANCE RACK NUMBER AND CLIFF CONFIGURATION                          *
+;*                                                                              *
+;********************************************************************************
 
           LDA     GAMETYPE
           CMP     #2
@@ -918,21 +939,21 @@ REAGAN
           LDY     #3
 STCFIG    STY     CFIGINDX
 
-/********************************************************************************
-*                                                                              *
-*         HAVE PLAYERS FALL OFF DISOLVED CLIFFS                                *
-*                                                                              *
-********************************************************************************/
+;********************************************************************************
+;*                                                                              *
+;*         HAVE PLAYERS FALL OFF DISOLVED CLIFFS                                *
+;*                                                                              *
+;********************************************************************************
 
-GPSKP98A  LDX     #1		;SETUP PLAYER INDEX
+GPSKP98A  LDX     #1                     ;SETUP PLAYER INDEX
 
-GPSKP98B  LDA     STATES,X	
-          AND     #$60		;IF PLAYER FLYING
-          BEQ     GPSKP98D	;SKIP CLIFF EXISTENCE CHECK
+GPSKP98B  LDA     STATES,X
+          AND     #$60                   ;IF PLAYER FLYING
+          BEQ     GPSKP98D               ;SKIP CLIFF EXISTENCE CHECK
 
           STX     TEMP0
           LDA     GENERALS,X
-          AND     #$7		;GET CLIFF NUMER INTO X
+          AND     #$7                    ;GET CLIFF NUMER INTO X
           CMP     #1
           BNE     GPSKP98C
 
@@ -952,11 +973,11 @@ GPSKP98B  LDA     STATES,X
 GPSKP98C  TAX
           LDA     CNUMASKS,X
           LDX     TEMP0
-          AND     CLIFIGS,Y	;IF CLIFF DOESN'T EXIST ANYMORE
-          BNE     GPSKP98D	;SKIP TO TRANS TO FLY SECTION
+          AND     CLIFIGS,Y              ;IF CLIFF DOESN'T EXIST ANYMORE
+          BNE     GPSKP98D               ;SKIP TO TRANS TO FLY SECTION
 
 
-FLYTRANS  LDA     #1		;TRANSITION TO FLYING
+FLYTRANS  LDA     #1                     ;TRANSITION TO FLYING
           STA     GEN2,X
           LDA     STATES,X
           AND     #$8F
@@ -966,14 +987,14 @@ FLYTRANS  LDA     #1		;TRANSITION TO FLYING
           STA     YVELFRAC,X
           STA     GENERALS,X
 
-GPSKP98D  DEX			;IF NEED BE DO NEXT PLAYER
+GPSKP98D  DEX                            ;IF NEED BE DO NEXT PLAYER
           BPL     GPSKP98B
-          JSR     DEPENMYS	;DEPLOY ENEMIES
+          JSR     DEPENMYS               ;DEPLOY ENEMIES
 
           LDA     #0
           BIT     ENEMA
           BMI     STZTT
-          LDX     #ITITI	;RESET TERRY TIMER...
+          LDX     #ITITI                 ;RESET TERRY TIMER...
           STX     TITIMNDX
           LDA     #11
 STZTT     STA     TERYTIME
@@ -985,14 +1006,14 @@ STZTT     STA     TERYTIME
 JMPVB     JMP     VBEND                  ;TO PREVENT SCREEN FLIPS
 
 CADVEXIT
-/*******************************************************************************
-*                                                                              *
-*         PLAYER 1 / ENEMY COLLISION
-*                                                                              *
-********************************************************************************/
+;********************************************************************************
+;*                                                                              *
+;*         PLAYER 1 / ENEMY COLLISION
+;*                                                                              *
+;********************************************************************************
 
           LDX     #1
-          LDA     STAT2+1	;IF PLAYER 1 NOT PRESENT SKIP ENEMY
+          LDA     STAT2+1                ;IF PLAYER 1 NOT PRESENT SKIP ENEMY
           CMP     #SHIELD
           BPL     ENDHITP1
           LDA     GAMETYPE
@@ -1035,23 +1056,23 @@ PMOSKP05  LDA     STATES,X
                                          ;IF NOT FLYING
           BNE     PMOSKP10               ;GOTO WALK SKID COMMON FRONT END START
           JMP     FLYENTRY
-PMOSKP10  JMP     WSFENTRY
-/*************************************************************
-*
-*         SUBROUTINE PMOTION
-*
-*         THIS SUBROUTINE DOES THE MOTION FOR A PLAYER
-*
-*         INPUTS  THE CONTROLS SHOULD BE IN THE ACC, BIT 7 SET/RESET BUTTON D/U
-*                                        BITS 3210 INVERTED JOYSTICK INPUT
-*                 AN INDEX FOR THE PLAYER SHOULD BE IN X
-*
-*         OUTPUTS ALL THE FIELDS OF A PLAYER'S DATA MIGHT BE CHANGED
-*                 THE ACC WILL HAVE A SOUND CONTROL CODE
-****************************************************************/	
 
-PMOTION   STX     TEMP0		;STORE PLAYER INDEX
-          STA     TEMP1		;STORE CONTROLS
+PMOSKP10  JMP     WSFENTRY
+;===============================================================================
+
+;*         SUBROUTINE PMOTION
+;*
+;*         THIS SUBROUTINE DOES THE MOTION FOR A PLAYER
+;*
+;*         INPUTS  THE CONTROLS SHOULD BE IN THE ACC, BIT 7 SET/RESET BUTTON D/U
+;*                                        BITS 3210 INVERTED JOYSTICK INPUT
+;*                 AN INDEX FOR THE PLAYER SHOULD BE IN X
+;*
+;*         OUTPUTS ALL THE FIELDS OF A PLAYER'S DATA MIGHT BE CHANGED
+;*                 THE ACC WILL HAVE A SOUND CONTROL CODE
+
+PMOTION   STX     TEMP0                  ;STORE PLAYER INDEX
+          STA     TEMP1                  ;STORE CONTROLS
 
           LDA     STAT2,X
           CMP     #SHIELD
@@ -1098,7 +1119,7 @@ GBSENTRY  CMP     #PGONE
 
 PGONE020  DEC     LIVES,X
           BMI     PGONE010
-          LDA     C1XPOS,X	;ALWAY DO BIRTH ON CLIFF ONE FOR NOW
+          LDA     C1XPOS,X               ;ALWAY DO BIRTH ON CLIFF ONE FOR NOW
           STA     XPOS,X
           LDA     TOPSM9
           STA     YPOSINT,X
@@ -1107,13 +1128,12 @@ PGONE020  DEC     LIVES,X
           LDA     #ISTA2B1
           STA     STAT2,X
 
-          LDA     #$01		;PUT PLAYER ON CORRECT CLIFF
+          LDA     #$01                   ;PUT PLAYER ON CORRECT CLIFF
           STA     BIRTHAN,X
           CMP     CFIGINDX
           LDA     #0
           STA     EGGSCORE,X
           ROL
-
           STA     GENERALS,X
 
           LDA     #BRTHITIM
@@ -1121,7 +1141,7 @@ PGONE020  DEC     LIVES,X
 
           LDA     TERYCNT
           BEQ     NONEWTT
-          LDY     TITIMNDX	;SET UP NEW TERRY TIMER
+          LDY     TITIMNDX               ;SET UP NEW TERRY TIMER
           LDA     TITIMES,Y
           STA     TERYTIME
 
@@ -1179,41 +1199,41 @@ WSFSKP18
           LDA     #NOTSOUND
           RTS
 
-/*============================================================================== */
+;==============================================================================
 
-WSFENTRY  LDA     #NOTSOUND	;STORE DEFAULT SOUND CONTROL CODE
-          STA     TEMP4		;IN TEMP
+WSFENTRY  LDA     #NOTSOUND              ;STORE DEFAULT SOUND CONTROL CODE
+          STA     TEMP4                  ;IN TEMP
 
-          LDA     GENERALS,X	;IF BUTTON HAS NOT BEEN UP YET
-          BMI     WSFSKP05	;GOTO BUTTON STILL DOWN CHECK
+          LDA     GENERALS,X             ;IF BUTTON HAS NOT BEEN UP YET
+          BMI     WSFSKP05               ;GOTO BUTTON STILL DOWN CHECK
 
-          LDY     TEMP1		;IF BUTTON IS UP
-          BPL     WSFSKP10	;GOTO STILL ON CLIFF CHECK
-          LDA     #FLYFEFST	;SETUP AND GOTO TRANS TO FLY
+          LDY     TEMP1                  ;IF BUTTON IS UP
+          BPL     WSFSKP10               ;GOTO STILL ON CLIFF CHECK
+          LDA     #FLYFEFST              ;SETUP AND GOTO TRANS TO FLY
           BNE     WSFSKP15
 
-WSFSKP05  LDY     TEMP1		;IF BUTTON STILL DOWN
-          BMI     WSFSKP10	;GOTO STILL ON CLIFF CHECK
+WSFSKP05  LDY     TEMP1                  ;IF BUTTON STILL DOWN
+          BMI     WSFSKP10               ;GOTO STILL ON CLIFF CHECK
 
-          AND     #$7F		;CLEAR BUTTON DOWN BIT
+          AND     #$7F                   ;CLEAR BUTTON DOWN BIT
           STA     GENERALS,X
 
-WSFSKP10  LDA     GENERALS,X	;CHECK IF STILL ON CLIFF
-          AND     #$7		;GET CLIFF # INTO Y ALONE
+WSFSKP10  LDA     GENERALS,X             ;CHECK IF STILL ON CLIFF
+          AND     #$7                    ;GET CLIFF # INTO Y ALONE
           TAY
-          STA     TEMP3		;STORE CLIFF # FOR W/S BACK END USE
+          STA     TEMP3                  ;STORE CLIFF # FOR W/S BACK END USE
 
           LDA     XPOS,X
-          CMP     LEFTSM4,Y	;IF LEFT OF CENTER SECTION OF CLIFF
-          BCC     WSFSKP14	;GOTO TRANS TO FLY
-          CMP     RIGHTSM1,Y	;IF NOT RIGHT OF CENTER SECTION OF CLIFF
-          BCC     WSFSKP20	;GOTO BRANCHES FOR WALK/SKID FRONT ENDS
+          CMP     LEFTSM4,Y              ;IF LEFT OF CENTER SECTION OF CLIFF
+          BCC     WSFSKP14               ;GOTO TRANS TO FLY
+          CMP     RIGHTSM1,Y             ;IF NOT RIGHT OF CENTER SECTION OF CLIFF
+          BCC     WSFSKP20               ;GOTO BRANCHES FOR WALK/SKID FRONT ENDS
 WSFSKP14  LDA     #1
 
-WSFSKP15  STA     GEN2,X	;TRANSITION TO FLY
+WSFSKP15  STA     GEN2,X                 ;TRANSITION TO FLY
           LDA     STATES,X
           STA     TEMP2
-          AND     #$8F		;MAINTAIN FACING
+          AND     #$8F                   ;MAINTAIN FACING
                                          ;RESET FLY BITS, CLEAR WALK/SKID BITS
           STA     STATES,X
 
@@ -1222,40 +1242,40 @@ WSFSKP15  STA     GEN2,X	;TRANSITION TO FLY
           STA     YVELFRAC,X
           STA     GENERALS,X
 
-          LDA     TEMP2		;IF WERE SKIDDING RETURN WITH STOP
-          AND     #$40		;SKID SOUND
+          LDA     TEMP2                  ;IF WERE SKIDDING RETURN WITH STOP
+          AND     #$40                   ;SKID SOUND
           BNE     WSFSKP18
           LDA     #STPSKDSN
           RTS
 
-WSFSKP20  LDA     STATES,X	;BRANCH OUT TO INDIVIDUAL WALK AND SKID
-          AND     #$40		;FRONT ENDS
+WSFSKP20  LDA     STATES,X               ;BRANCH OUT TO INDIVIDUAL WALK AND SKID
+          AND     #$40                   ;FRONT ENDS
           BNE     WFENTRY
           JMP     SFENTRY
 
 ;===============================================================================
 
-WFENTRY   LDA     STAT2,X	;WALK FRONT END
+WFENTRY   LDA     STAT2,X                ; WALK FRONT END
           CMP     #5
-          BPL     WFESKP05	;GOTO LEFT SPEED AND STICK CHECK
+          BPL     WFESKP05               ;GOTO LEFT SPEED AND STICK CHECK
 
-          CMP     #3		;IF RIGHT SPEED < 3
-          BMI     WBENTRY0	;GOTO WALK BACK END
-
-          LDA     TEMP1
-          AND     #$04		;IF STICK LEFT
-          BNE     WFESKP10	;GOTO TRANSITION TO SKID
-          BEQ     WBENTRY0	;ELSE GOTO WALK BACK END
-
-WFESKP05  CMP     #8		;LEFT SPEED AND STICK CHECK
-          BMI     WBENTRY0	;IF LEFT SPEED < 8 GOTO WALK BACK END
+          CMP     #3                     ;IF RIGHT SPEED < 3
+          BMI     WBENTRY0               ;GOTO WALK BACK END
 
           LDA     TEMP1
-          AND     #$08		;IF NOT STICK RIGHT
-          BEQ     WBENTRY0	;GOTO WALK BACK END
+          AND     #$04                   ;IF STICK LEFT
+          BNE     WFESKP10               ;GOTO TRANSITION TO SKID
+          BEQ     WBENTRY0               ;ELSE GOTO WALK BACK END
 
-WFESKP10  LDA     STATES,X	;TRANSITION TO SKID
-          AND     #$8F		;CLEAR WALK AND SET SKID BIT
+WFESKP05  CMP     #8                     ;LEFT SPEED AND STICK CHECK
+          BMI     WBENTRY0               ;IF LEFT SPEED < 8 GOTO WALK BACK END
+
+          LDA     TEMP1
+          AND     #$08                   ;IF NOT STICK RIGHT
+          BEQ     WBENTRY0               ;GOTO WALK BACK END
+
+WFESKP10  LDA     STATES,X               ;TRANSITION TO SKID
+          AND     #$8F                   ;CLEAR WALK AND SET SKID BIT
           ORA     #$20
           STA     STATES,X
 
@@ -1271,23 +1291,23 @@ WFESKP10  LDA     STATES,X	;TRANSITION TO SKID
 ;===============================================================================
 WBESKP03
           STY     GEN2,X
-          JMP     WBESKP25	;GOTO GET DELTA X SECTION
+          JMP     WBESKP25               ;GOTO GET DELTA X SECTION
 
 
-WBENTRY0  LDY     GEN2,X	;WALK BACK END
-          DEY			;IF DELAY NOW ZERO
-          BNE     WBESKP03	;THEN GOTO SPEED CHANGE/DELAY RESET SPOT
+WBENTRY0  LDY     GEN2,X                 ; WALK BACK END
+          DEY                            ;IF DELAY NOW ZERO
+          BNE     WBESKP03               ;THEN GOTO SPEED CHANGE/DELAY RESET SPOT
 
 
 
-          LDY     STAT2,X	;SPEED CHANGE SECTION    GET SPED INTO Y
+          LDY     STAT2,X                ;SPEED CHANGE SECTION    GET SPED INTO Y
 
-          LDA     TEMP1		;GET EAST/WEST BITS INTO ACC ALONE
+          LDA     TEMP1                  ;GET EAST/WEST BITS INTO ACC ALONE
           AND     #$0C
-          BEQ     WBESKP25	;IF NOT CHANGE GOTO GET DELTA X SPOT
+          BEQ     WBESKP25               ;IF NOT CHANGE GOTO GET DELTA X SPOT
 
-          AND     #$08		;IF EAST NOT SET
-          BNE     WBESKP10	;GOTO RIGHT STICK SPEED CHANGE
+          AND     #$08                   ;IF EAST NOT SET
+          BNE     WBESKP10               ;GOTO RIGHT STICK SPEED CHANGE
 
                                         ;LEFT STICK SPEED CHANGE SECTION
                                          ;CLEAR OUT OLD SPEED
@@ -1298,66 +1318,66 @@ WBESKP10                                ;RIGHT STICK SPEED CHANGE SECTION
                                          ;CLEAR OUT OLD SPEED
           LDA     SPEDCNGR,Y             ;HUAL IN NEW SPEED
 
-WBESKP15  STA     STAT2,X	;STORE NEW STATES UNTIL CONVIENIENT
+WBESKP15  STA     STAT2,X                ;STORE NEW STATES UNTIL CONVIENIENT
                                         ;SET FACING IN DIRECTION OF SPEED
           CMP     #5
-          BPL     WBESKP20	;IF LEFT SPEED GOTO SET LEFT FACING SPOT
+          BPL     WBESKP20               ;IF LEFT SPEED GOTO SET LEFT FACING SPOT
 
-          LDA     STATES,X	;GET IN NEW STATES
-          AND     #$7F		;CLEAR FACING BIT FOR FACING RIGHT
-          BPL     WBESKP23	;GOTO STORE TEMPS AND DELTA X
+          LDA     STATES,X               ;GET IN NEW STATES
+          AND     #$7F                   ;CLEAR FACING BIT FOR FACING RIGHT
+          BPL     WBESKP23               ;GOTO STORE TEMPS AND DELTA X
 
 WBESKP20  LDA     STATES,X
-          ORA     #$80		;SET FACING IN DIRECTION OF SPEED
+          ORA     #$80                   ;SET FACING IN DIRECTION OF SPEED
 
-WBESKP23  STA     STATES,X	;STORE NEW STATES
+WBESKP23  STA     STATES,X               ;STORE NEW STATES
 
           LDA     #MAXWDLAY
           STA     GEN2,X
 
-WBESKP25  LDA     STAT2,X	;GET DELTA X INTO Y
-          ASL     
-          ASL     
+WBESKP25  LDA     STAT2,X                ;GET DELTA X INTO Y
+          ASL
+          ASL
           ADC     TEMPM4FC
           TAY
           LDA     DELTAX,Y
           TAY
 
           LDA     STAT2,X
-          BEQ     WBESKP28	;IF NOT MOVING GOTO STAND SECTION
+          BEQ     WBESKP28               ;IF NOT MOVING GOTO STAND SECTION
           CMP     #5
-          BNE     WBESKP30	;IF MOVING GOTO ANIMATION SECTION
+          BNE     WBESKP30               ;IF MOVING GOTO ANIMATION SECTION
 
 WBESKP28  LDA     STATES,X
-          AND     #$CF		;CLEAR OUT OLD ANIMATION # AND SELECT
-          ORA     #$30		;3 WHICH IS USED FOR STANDING
+          AND     #$CF                   ;CLEAR OUT OLD ANIMATION # AND SELECT
+          ORA     #$30                   ;3 WHICH IS USED FOR STANDING
           STA     STATES,X
-JMP50     JMP     WSBSKP50	;GOTO NO SOUND RETURN SECTION
+JMP50     JMP     WSBSKP50               ;GOTO NO SOUND RETURN SECTION
 
-WBESKP30  TYA			;IF MOTION THIS FRAME
-;         BNE     WBESKP35               GOTO ANIMATION INCREMENT
-          BEQ     JMP50		;ELSE GOTO NO SOUND RETURN
+WBESKP30  TYA                            ;IF MOTION THIS FRAME
+;         BNE     WBESKP35               ;GOTO ANIMATION INCREMENT
+          BEQ     JMP50                  ;ELSE GOTO NO SOUND RETURN
 
-WBESKP35  LDA     STATES,X	;GET AN # INTO ACC ALONE, BUT UNSHIFTED
-          AND     #$30		;IF AN # IS ZERO
-          BEQ     WBESKP55	;GOTO START NEW CYCLE SECTION
+WBESKP35  LDA     STATES,X               ;GET AN # INTO ACC ALONE, BUT UNSHIFTED
+          AND     #$30                   ;IF AN # IS ZERO
+          BEQ     WBESKP55               ;GOTO START NEW CYCLE SECTION
 
-          SEC			;SUBTRACT "1" FROM AN #
+          SEC                            ;SUBTRACT "1" FROM AN #
           SBC     #$10
           STA     TEMP2
 
-          CMP     #$10		;IF NOT AT FOOT DOWN
-          BNE     WBESKP50	;GOTO STORE NEW AN # SECTION
+          CMP     #$10                   ;IF NOT AT FOOT DOWN
+          BNE     WBESKP50               ;GOTO STORE NEW AN # SECTION
 
-          LDA     #WLKSOUND	;QUE UP FOOT DOWN NOISE
+          LDA     #WLKSOUND              ;QUE UP FOOT DOWN NOISE
           STA     TEMP4
 
 WBESKP50  LDA     STATES,X
-          AND     #$CF		;KILL OLD AN #
-          ORA     TEMP2		;HUAL IN NEW ONE
+          AND     #$CF                   ;KILL OLD AN #
+          ORA     TEMP2                  ;HUAL IN NEW ONE
           STA     STATES,X
           TYA
-          JMP     WSBENTRY	;GOTO COMMON WALK SKID BACK END
+          JMP     WSBENTRY               ;GOTO COMMON WALK SKID BACK END
 
 WBESKP55  LDA     #$30
           STA     TEMP2
@@ -1365,26 +1385,26 @@ WBESKP55  LDA     #$30
 
 ;===============================================================================
 
-SFENTRY   LDA     STAT2,X	;SKID FRONT END
-          BEQ     SFESKP10	;IF SPEED RIGHT 0 GOTO WALK TRANS
+SFENTRY   LDA     STAT2,X                ;SKID FRONT END
+          BEQ     SFESKP10               ;IF SPEED RIGHT 0 GOTO WALK TRANS
           CMP     #5
-          BEQ     SFESKP10	;IF SPEED LEFT 0 GOTO WALK TRANS
+          BEQ     SFESKP10               ;IF SPEED LEFT 0 GOTO WALK TRANS
 
-          BMI     SFESKP05	;IF LEFT GOTO LEFT STICK CHECK
+          BMI     SFESKP05               ;IF LEFT GOTO LEFT STICK CHECK
 
           LDA     TEMP1
-          AND     #$04		;IF STICK LEFT
+          AND     #$04                   ;IF STICK LEFT
           BEQ     SBENTRY0
           BNE     SFESKP10
 
 SFESKP05
           LDA     TEMP1
-          AND     #$08		;IF STICK RIGHT
-          BEQ     SBENTRY0	;ELSE GOTO SKID BACK END
+          AND     #$08                   ;IF STICK RIGHT
+          BEQ     SBENTRY0               ;ELSE GOTO SKID BACK END
 
-SFESKP10  LDA     STATES,X	;TRANSITION TO WALK
-          AND     #$8F		;CLEAR OUT SKID INDICATIONS
-          ORA     #$70		;HUAL IN WALK STUFF
+SFESKP10  LDA     STATES,X               ;TRANSITION TO WALK
+          AND     #$8F                   ;CLEAR OUT SKID INDICATIONS
+          ORA     #$70                   ;HUAL IN WALK STUFF
           STA     STATES,X
 
           DEC     YPOSINT,X
@@ -1399,27 +1419,27 @@ SFESKP10  LDA     STATES,X	;TRANSITION TO WALK
 ;===============================================================================
 
 SBENTRY0                                ;GET CURRENT SPEED INTO Y
-          LDY     GEN2,X		;GET AND DECREMENT DELAY
-          DEY				;IF DELAY = 0
-          BEQ     SBESKP05		;THEN GOTO SPEED CHANGE/DELAY RESET SPOT
+          LDY     GEN2,X                 ;GET AND DECREMENT DELAY
+          DEY                            ;IF DELAY = 0
+          BEQ     SBESKP05               ;THEN GOTO SPEED CHANGE/DELAY RESET SPOT
 
-          STY     GEN2,X	;REBUILD GENERALS WITH NEW DELAY
+          STY     GEN2,X                 ;REBUILD GENERALS WITH NEW DELAY
           LDA     STAT2,X
-          JMP     SBESKP26	;GOTO GET DELTA X SECTION
+          JMP     SBESKP26               ;GOTO GET DELTA X SECTION
 
-SBESKP05  LDA     #MAXSDLAY	;SPEED CHANGE SECTION
+SBESKP05  LDA     #MAXSDLAY              ;SPEED CHANGE SECTION
           STA     GEN2,X
 
 
           LDY     STAT2,X
-          LDA     SPEEDEC,Y	;HUAL IN SMALLER SPEED
+          LDA     SPEEDEC,Y              ;HUAL IN SMALLER SPEED
           STA     STAT2,X
 
 SBENTRY1                                 ;QUE UP SKID NOISE Y
 
 SBESKP25  TYA                            ;SPEED IS STILL IN Y
-SBESKP26  ASL     
-          ASL     
+SBESKP26  ASL
+          ASL
           ADC     TEMPM4FC
           TAY
           LDA     DELTAX,Y
@@ -1429,74 +1449,74 @@ SBESKP26  ASL
 
 WSBENTRY                                 ; IF HORIZONTAL MOTION THIS FRAME
 ;         BNE     WSBSKP35               GOTO X CALC AND CHECK SECTION
-          BEQ     WSBSKP50	;ELSE SELECT NO SOUND AND RETURN
+          BEQ     WSBSKP50               ;ELSE SELECT NO SOUND AND RETURN
 
 WSBSKP35  CLC
-          ADC     XPOS,X	;CALCULATE NEW X POSSITION
+          ADC     XPOS,X                 ;CALCULATE NEW X POSSITION
 
-          CMP     #LMOSTPXL	;IF TO RIGHT OF LEFTMOST LEGAL PIXEL
-          BPL     WSBSKP40	;GOTO RIGHT EDGE CHECK SECTION
+          CMP     #LMOSTPXL              ;IF TO RIGHT OF LEFTMOST LEGAL PIXEL
+          BPL     WSBSKP40               ;GOTO RIGHT EDGE CHECK SECTION
 
 
-          LDA     #RMSTSPXL	;SET TO RIGHT OF SCREEN
-          BNE     WSBSKP41	;GOTO CLIFF WRAP SECTION
+          LDA     #RMSTSPXL              ;SET TO RIGHT OF SCREEN
+          BNE     WSBSKP41               ;GOTO CLIFF WRAP SECTION
 
-WSBSKP40  CMP     #RMSTCPXL	;IF IN CENTER OF SCREEN
-          BMI     WSBSKP45	;GOTO STORE NEW X SECTION
+WSBSKP40  CMP     #RMSTCPXL              ;IF IN CENTER OF SCREEN
+          BMI     WSBSKP45               ;GOTO STORE NEW X SECTION
 
-          LDA     #LMOSTPXL	;SET TO LEFT OF SCREEN
+          LDA     #LMOSTPXL              ;SET TO LEFT OF SCREEN
 WSBSKP41  STA     XPOS,X
 
-WSBSKP42  LDY     TEMP3		;GET CLIFF NUMBER INTO Y
+WSBSKP42  LDY     TEMP3                  ;GET CLIFF NUMBER INTO Y
           LDA     GENERALS,X
-          AND     #$F8		;KILL CLIFF #, BITS 210
-          ORA     CLIFWRAP,Y	;HUAL IN WRAPED AROUND CLIFF #
+          AND     #$F8                   ;KILL CLIFF #, BITS 210
+          ORA     CLIFWRAP,Y             ;HUAL IN WRAPED AROUND CLIFF #
           STA     GENERALS,X
           JMP     WSBSKP50
 
 WSBSKP45  STA     XPOS,X
 
-WSBSKP50  LDA     TEMP4		;GET POSSIBLE SOUND
+WSBSKP50  LDA     TEMP4                  ;GET POSSIBLE SOUND
           RTS
 
 ;==============================================================================
                                          ; FLYING SECTION
 
-FLYSK12B  LDA     STAT2,X	;SETUP AND GOTO GET DELTA X SECTION
+FLYSK12B  LDA     STAT2,X                ;SETUP AND GOTO GET DELTA X SECTION
           JMP     FLYSKP08
 
-FLYSK12C  AND     #$04		;GET WEST CONTROL BIT INTO Y ALONE
+FLYSK12C  AND     #$04                   ;GET WEST CONTROL BIT INTO Y ALONE
           TAY
-          LDA     STATES,X	;GET STATES AND CLEAR OLD FACING BIT
+          LDA     STATES,X               ;GET STATES AND CLEAR OLD FACING BIT
           AND     #$7F
-          CPY     #0		;IF WEST IS SET
-          BEQ     FLYSK12D	;SET LEFT FACING BIT
+          CPY     #0                     ;IF WEST IS SET
+          BEQ     FLYSK12D               ;SET LEFT FACING BIT
           ORA     #$80
 FLYSK12D  STA     STATES,X
           LDA     STAT2,X
           JMP     FLYSKP08
 
 FLYENTRY
-/*         SUBPROCESS GET RAW Y
-*
-*         THIS SUBPROCESS LOOKS AT THE CONTROLS AND STATE FOR THE "PASSED"
-*         PLAYER BIRD AND UPDATES ITS VERTICLE VELOCITY, POSSITION AND DELAY
-*         EFFECTIVENESS FOR EFFECTIVE FLAPPING FRAMES.  THE ONLY BOUNDRY
-*         CONDITION DEALT WITH IN THE SUBPROCESS IS TERMINAL VELOCITIES.
-*
-*         INPUTS  THE CONTROLS FOR THIS BIRD SHOULD BE IN THE ACC AND AN INDEX
-*                 AS TO WHICH PLAYER IN X
-*
-*         OUTPUTS THE FOLLOWING FIELDS OF THE PLAYER BIRD ARE UPDATED:
-*                 YPOSINT, GENERALS (YPOSFRAC, DELAY/EFFECT), YVELINT, YVELFRAC
-*
-*         SIDE EFFECTS    THE PROCESSOR STATUS IS ABOUT YPOSINT.
-*                 THE ACC CONTAINS YPOSINT.
-*                 RAM LOC TEMP2 CONTAINS DELAY/EFFECT
-*                 Y IS TRASHED.
-*/
-          LDA     TEMP1		;GET CONTROLS    IF BUTTON DOWN
-          BMI     GETYSKP0	;GOTO SECTION FOR BUTTON DOWN
+;*         SUBPROCESS GET RAW Y
+;*
+;*         THIS SUBPROCESS LOOKS AT THE CONTROLS AND STATE FOR THE "PASSED"
+;*         PLAYER BIRD AND UPDATES ITS VERTICLE VELOCITY, POSSITION AND DELAY
+;*         EFFECTIVENESS FOR EFFECTIVE FLAPPING FRAMES.  THE ONLY BOUNDRY
+;*         CONDITION DEALT WITH IN THE SUBPROCESS IS TERMINAL VELOCITIES.
+;*
+;*         INPUTS  THE CONTROLS FOR THIS BIRD SHOULD BE IN THE ACC AND AN INDEX
+;*                 AS TO WHICH PLAYER IN X
+;*
+;*         OUTPUTS THE FOLLOWING FIELDS OF THE PLAYER BIRD ARE UPDATED:
+;*                 YPOSINT, GENERALS (YPOSFRAC, DELAY/EFFECT), YVELINT, YVELFRAC
+;*
+;*         SIDE EFFECTS    THE PROCESSOR STATUS IS ABOUT YPOSINT.
+;*                 THE ACC CONTAINS YPOSINT.
+;*                 RAM LOC TEMP2 CONTAINS DELAY/EFFECT
+;*                 Y IS TRASHED.
+;*
+          LDA     TEMP1                  ;GET CONTROLS    IF BUTTON DOWN
+          BMI     GETYSKP0               ;GOTO SECTION FOR BUTTON DOWN
 
                                          ;SECTION FOR BUTTON UP
           LDA     #FLYFEFST              ;RESET FLYING EFFECTIVENESS
@@ -1507,7 +1527,7 @@ GETMGF    LDY     #2                     ;SELECT RESULTANT UPWARD ACCELERATION
           BNE     GETYSKP2               ;GOTO VELOCITY CALC SECTION
 
                                          ;SECTION FOR BUTTON DOWN
-GETYSKP0  LDY     GEN2,X		 ;GET DELAY/EFFECT INTO Y ALONE
+GETYSKP0  LDY     GEN2,X                 ; GET DELAY/EFFECT INTO Y ALONE
           DEY                            ;DECREMENT DELAY/EFFECT
           TYA                            ;IF DELAY/EFFECT = 0
           BNE     GETMGF                 ;GOTO NON-EFFECTIVE FLAPPING SPOT
@@ -1523,8 +1543,8 @@ GETYSKP2  STA     GEN2,X                 ;TEMP STORE NEW DELAY EFFECT
           LDA     YVELFRAC,X
           ADC     ACCELS,Y
           STA     YVELFRAC,X
-          INY			;ADJUST INDEX FOR ACCEL INT
-          LDA     YVELINT,X	;CALCULATE YVELINT
+          INY                            ;ADJUST INDEX FOR ACCEL INT
+          LDA     YVELINT,X              ;CALCULATE YVELINT
           ADC     ACCELS,Y
                                          ;GET INTEGER PART OF VELOCITY IN BOUNDS
           AND     #$0F                   ;VIA TABLE LOOKUP ON COMPUTED SPEED
@@ -1535,27 +1555,26 @@ GETYSKP2  STA     GEN2,X                 ;TEMP STORE NEW DELAY EFFECT
 GETYSKP4  STA     YVELINT,X              ;STORE INTEGER VELOCITY
           LDA     GENERALS,X             ;GET OLD YPOSFRAC INTO
           CLC
-          ADC     YVELFRAC,X	;CALC NEW YPOSFRAC
+          ADC     YVELFRAC,X             ;CALC NEW YPOSFRAC
           STA     GENERALS,X
 
-          LDA     YVELINT,X	;CALC AND STORE YPOSINT
+          LDA     YVELINT,X              ;CALC AND STORE YPOSINT
           ADC     YPOSINT,X
           STA     YPOSINT,X
 
           LDA     TEMP1
-          AND     #$0C		;IF NO STICK
-          BEQ     FLYSK12B	;GOTO SETUP AND THEN GET DELTA X SPOT
+          AND     #$0C                   ; IF NO STICK
+          BEQ     FLYSK12B               ; GOTO SETUP AND THEN GET DELTA X SPOT
 
           LDY     GEN2,X
-          CPY     #FLYFEFCP	;IF NOT FIRST EFFECTIVE FLAP FRAME
-          BNE     FLYSK12C	;GOTO FACING CHANGE ONLY
+          CPY     #FLYFEFCP              ; IF NOT FIRST EFFECTIVE FLAP FRAME
+          BNE     FLYSK12C               ; GOTO FACING CHANGE ONLY
 
-          LSR		;COMPUTE INDEX INTO NEW FLYING STATES
-          LSR		;TABLE, BITS 4-1 X SPEED, BIT 0 WEST
+          LSR                            ; COMPUTE INDEX INTO NEW FLYING STATES
+          LSR                            ; TABLE, BITS 4-1 X SPEED, BIT 0 WEST
           LSR
           LDA     STAT2,X
           ROL
-
           TAY
 
           ROR
@@ -1564,11 +1583,11 @@ GETYSKP4  STA     YVELINT,X              ;STORE INTEGER VELOCITY
           STA     STATES,X
 
           LDA     NFSTAT2,Y
-          STA     STAT2,X	;HUAL IN AND STORE NEW STATES
+          STA     STAT2,X                ; HUAL IN AND STORE NEW STATES
 
                                          ;GET NEW X SECTION
 FLYSKP08                                 ;GET DELTA X
-          ASL     
+          ASL
           ASL
           ADC     TEMPM4FC
           TAY
@@ -1579,41 +1598,42 @@ FLYSKP08                                 ;GET DELTA X
           CMP     #LMOSTPXL              ;IF TO RIGHT OF LEFTMOST LEGAL X
           BPL     FLYSKP10               ;GOTO RIGHT EDGE CHECK SECTION
 
-          LDA     #RMSTSPXL	;SET TO RIGHT OF SCREEN GOTO TOP OF
-          BNE     FLYSKP12	;SCREEN REFLECT CHECK SECTION
+          LDA     #RMSTSPXL              ;SET TO RIGHT OF SCREEN GOTO TOP OF
+          BNE     FLYSKP12               ;SCREEN REFLECT CHECK SECTION
 
-FLYSKP10  CMP     #RMSTCPXL	;IF TO LEFT OF RIGHTMOST LEGAL X
-          BMI     FLYSKP12	;GOTO SCREEN TOP CHECK SECTION
+FLYSKP10  CMP     #RMSTCPXL              ;IF TO LEFT OF RIGHTMOST LEGAL X
+          BMI     FLYSKP12               ;GOTO SCREEN TOP CHECK SECTION
 
-          LDA     #LMOSTPXL	;SET TO LEFT EDGE
+          LDA     #LMOSTPXL              ;SET TO LEFT EDGE
 
-FLYSKP12  STA     TEMP2		;STORE NEW X
+FLYSKP12  STA     TEMP2                  ;STORE NEW X
           STA     XPOS,X
                                          ;TOP OF SCREEN REFLECT CHECK SECTION
 FLYSKP13  LDY     YVELINT,X              ;IF GOING DOWN
           BPL     FLYSKP14               ;GOTO CLIFF COLLISION CHECK SECTION
           LDY     YPOSINT,X
           BPL     FLYSKP14
-          CPY     #TOPSCNUM	;IF NOT PAST TOP OF SCREEN
-          BMI     FLYSKP14	;GOTO CLIFF COLLISION CHECK SECTION
+          CPY     #TOPSCNUM              ;IF NOT PAST TOP OF SCREEN
+          BMI     FLYSKP14               ;GOTO CLIFF COLLISION CHECK SECTION
 
                                          ;TOP OF SCREEN REFLECT SECTION
           LDA     #0
           SEC
           SBC     YPOSINT,X
-          STA     YPOSINT,X	;IGNORE Y FRAC IT IS INSIGNIFICANT
+          STA     YPOSINT,X              ;IGNORE Y FRAC IT IS INSIGNIFICANT
 
-          LDA     YVELINT,X	;GET REFLECTED AND DAMPED Y VELOCITY
+          LDA     YVELINT,X              ;GET REFLECTED AND DAMPED Y VELOCITY
           AND     #$0F
           TAY
-          LDA     CLFBVELS,Y	;FROM TABLE
+          LDA     CLFBVELS,Y             ;FROM TABLE
           STA     YVELINT,X
 
-          LDY     TEMP0		;RESTORE PLAYER INDEX INTO Y
-          JMP     FLYSKP22	;GOTO FLAP SOUND CHECK
+          LDY     TEMP0                  ;RESTORE PLAYER INDEX INTO Y
+          JMP     FLYSKP22               ;GOTO FLAP SOUND CHECK
 
-FLYS160   JMP     FLYSKP21	;GOTO LAVA SECTION
-FLYS161   JMP     FLYSKP20	;GOTO RIGHT EDGE CHECK SECTION
+FLYS160   JMP     FLYSKP21               ;GOTO LAVA SECTION
+
+FLYS161   JMP     FLYSKP20               ;GOTO RIGHT EDGE CHECK SECTION
 
 WCLFSK10  LDA     CFIGINDX
           LDY     TEMP0
@@ -1624,36 +1644,34 @@ WCLFSK10  LDA     CFIGINDX
                                          ;CLIFF COLLISION CHECK SECTION
 FLYSKP14  LDA     YPOSINT,X              ;GET STAMP'S Y INTO ACC FOR WHATCLIF
 
-/*         SUBPROCESS WHATCLIF
-*
-*         THIS SUBPROCESS DETERMINES WHAT CLIFF, IF ANY, THE "PASSED" STAMP
-*         MIGHT BE IN.
-*
-*         INPUTS
-*                 THE Y OF THE STAMP SHOULD BE IN THE ACC
-*                 THE X "  "   "     "      "  "  LOCATION     TEMP2
-*
-*         OUTPUTS
-*                 THE CLIFF # IS IN X; IF NO CLIFF, X IS GARBAGE
-*/
-	
+;*         SUBPROCESS WHATCLIF
+;*
+;*         THIS SUBPROCESS DETERMINES WHAT CLIFF, IF ANY, THE "PASSED" STAMP
+;*         MIGHT BE IN.
+;*
+;*         INPUTS
+;*                 THE Y OF THE STAMP SHOULD BE IN THE ACC
+;*                 THE X "  "   "     "      "  "  LOCATION     TEMP2
+;*
+;*         OUTPUTS
+;*                 THE CLIFF # IS IN X; IF NO CLIFF, X IS GARBAGE
 
-WHATCLIF  LSR                      ;2 DIVIDE STAMP'S Y BY 4
-          LSR                      ;2
+WHATCLIF  LSR                            ;2 DIVIDE STAMP'S Y BY 4
+          LSR                            ;2
           TAY                            ;2
           LDX     CCHKNUMS,Y             ;4 GET LEFT CLIFF NUMBER INTO Y
           BEQ     WCLFSK10               ;2 IF ON BOTTOM OF SCREEN GOTO ITS SPOT
           LDA     TEMP2                  ;3
           CMP     #80                    ;2 IF ON LEFT SIDE OF SCREEN
           BMI     WCLFSKP7               ;2 DON'T WRAP TO GET RIGHT CLIFF NUMBER
-          LDA     WCLFWRAP,X             ;4 GET RIGHT WRAPED CLIFF NUMBER 
-          TAX				 ;2
+          LDA     WCLFWRAP,X             ;4 GET RIGHT WRAPED CLIFF NUMBER
+          TAX                            ;2
 
-WCLFSKP7  LDY     CFIGINDX	;3 HAUL IN CONFIG INDEX
-          LDA     CLIFIGS,Y	;4 GET CLIFF CONFIG INTO ACC
-          LDY     TEMP0		;3 RESTORE PLAYER INDEX INTO Y
-          AND     CNUMASKS,X	;4 MASK FOR CURRENT CLIFF
-          BEQ     FLYS160	;2 IF CLIFF CHECK, ELSE GO FLAP SND AREA
+WCLFSKP7  LDY     CFIGINDX               ;3 HAUL IN CONFIG INDEX
+          LDA     CLIFIGS,Y              ;4 GET CLIFF CONFIG INTO ACC
+          LDY     TEMP0                  ;3 RESTORE PLAYER INDEX INTO Y
+          AND     CNUMASKS,X             ;4 MASK FOR CURRENT CLIFF
+          BEQ     FLYS160                ;2 IF CLIFF CHECK, ELSE GO FLAP SND AREA
 
                                          ;POSSIBLE CLIFF # IS IN X
 FLYSKP16  LDA     TEMP2                  ;GET NEW X INTO ACC
@@ -1664,20 +1682,20 @@ FLYSKP16  LDA     TEMP2                  ;GET NEW X INTO ACC
           BCC     FLYSKP19
 
 FLYSK16A  LDA     YVELINT,Y
-          BMI     FLYSKP18	;IF VELOCITY NEG GOTO MIDCLIFF GOING UP
+          BMI     FLYSKP18               ;IF VELOCITY NEG GOTO MIDCLIFF GOING UP
 
 
                                          ;GOING DOWN MIDCLIFF HIT AND WALK CHECK
 FLYS16A2  LDA     YPOSINT,Y              ;CALC DISTANE A WALK STAMP INTO CLIFF
           SEC
           SBC     TOPSM15,X
-          BMI     FLYS162	;IF NOT IN CLIFF GOTO FLAP SOUND CHECK
+          BMI     FLYS162                ;IF NOT IN CLIFF GOTO FLAP SOUND CHECK
 
                                          ;TRANSITION TO WALK
           LDA     TOPSM15,X
-          STA     YPOSINT,Y	;PUT BIRD ON CLIFF
+          STA     YPOSINT,Y              ;PUT BIRD ON CLIFF
 
-          TXA			;BUILD GENERALS BASED ON CLIFF NUMBER
+          TXA                            ;BUILD GENERALS BASED ON CLIFF NUMBER
           ORA     #$80
           STA     GENERALS,Y
 
@@ -1685,22 +1703,22 @@ FLYS16A2  LDA     YPOSINT,Y              ;CALC DISTANE A WALK STAMP INTO CLIFF
           STA     GEN2,Y
 
           LDA     STATES,Y
-          ASL		;BUILD INDEX INTO NEW WALK STATES FROM
-          LDA     STAT2,Y	;HORIZONTAL SPEED AND FACING
-          ROL     
+          ASL                            ;BUILD INDEX INTO NEW WALK STATES FROM
+          LDA     STAT2,Y                ;HORIZONTAL SPEED AND FACING
+          ROL
           TAX
-          LDA     IWLKSTAT,X	;HUAL IN NEW INITIAL WALK STATE
+          LDA     IWLKSTAT,X             ;HUAL IN NEW INITIAL WALK STATE
           STA     STATES,Y
 
-          LDA     #NOTSOUND	;NO SOUND RETURN
-          RTS			;RETURN FROM PMOTION SUBROUTINE
+          LDA     #NOTSOUND              ;NO SOUND RETURN
+          RTS                            ;RETURN FROM PMOTION SUBROUTINE
 
                                          ;MIDCLIFF GOING UP SECTION
 FLYSKP18  LDA     BOTSP1,X               ;CALCULATE DISTANCE INTO CLIFF
           SEC
           SBC     YPOSINT,Y
-          BMI     FLYS162	;IF NOT INTO CLIFF THEN GOTO
-          BEQ     FLYS162	;FLAP SOUND SECTION
+          BMI     FLYS162                ;IF NOT INTO CLIFF THEN GOTO
+          BEQ     FLYS162                ;FLAP SOUND SECTION
           CMP     #5
           BPL     FLYS162
 
@@ -1709,27 +1727,27 @@ FLYSKP18  LDA     BOTSP1,X               ;CALCULATE DISTANCE INTO CLIFF
           ADC     YPOSINT,Y
           STA     YPOSINT,Y
 
-          LDA     YVELINT,Y	;GET REFLECTED AND DAMPED Y VELOCITY
+          LDA     YVELINT,Y              ;GET REFLECTED AND DAMPED Y VELOCITY
           AND     #$0F
           TAX
-          LDA     CLFBVELS,X	;FROM TABLE
+          LDA     CLFBVELS,X             ;FROM TABLE
           STA     YVELINT,Y
 
-          LDA     #BNCSOUND	;QUE UP BOUND SOUND
-          RTS			;RETURN FROM PMOTION SUBROUTINE
+          LDA     #BNCSOUND              ;QUE UP BOUND SOUND
+          RTS                            ;RETURN FROM PMOTION SUBROUTINE
 
-FLYS162   JMP     FLYSKP22	;GOTO FLAP SOUND SECTION
+FLYS162   JMP     FLYSKP22               ;GOTO FLAP SOUND SECTION
 
-FLYSKP19  CMP     LEFTSM7,X	;IF LEFT OF POSSIBLE CLIFF
-          BCC     FLYSKP21	;THEN GOTO LAVA SECTION
-
+FLYSKP19  CMP     LEFTSM7,X              ;IF LEFT OF POSSIBLE CLIFF
+          BCC     FLYSKP21               ;THEN GOTO LAVA SECTION
+                                         ;
                                          ;LEFT PIXELS VERT ZONE CHECK
           LDA     YPOSINT,Y
-          CMP     TOPSM11,X	;IF STAMP ABOVE CLIFF
-          BMI     FLYSKP22	;THEN GOTO FLAP SOUND SECTION
+          CMP     TOPSM11,X              ;IF STAMP ABOVE CLIFF
+          BMI     FLYSKP22               ;THEN GOTO FLAP SOUND SECTION
 
-          CMP     BOTSP1,X	;IF STAMP BELOW CLIFF
-          BPL     FLYSKP22	;THEN GOTO FLAP SOUND SECTION
+          CMP     BOTSP1,X               ;IF STAMP BELOW CLIFF
+          BPL     FLYSKP22               ;THEN GOTO FLAP SOUND SECTION
 
                                          ;HAVE HIT LEFT EDGE OF CLIFF #X BOUNCE
           LDA     LEFTSM7,X              ;MOVE STAMP JUST LEFT OF CLIFF
@@ -1737,37 +1755,37 @@ FLYSKP19  CMP     LEFTSM7,X	;IF LEFT OF POSSIBLE CLIFF
           SBC     #1
           STA     XPOS,Y
 
-          LDX     STAT2,Y	;GET H SPEED INTO X ALONE
-          LDA     SPCNGIFR,X	;HUAL IN POSSIBLE CHANGED SPEED
+          LDX     STAT2,Y                ;GET H SPEED INTO X ALONE
+          LDA     SPCNGIFR,X             ;HUAL IN POSSIBLE CHANGED SPEED
           STA     STAT2,Y
 
-          LDA     #BNCSOUND	;QUE UP BOUNCE SOUND
-          RTS			;RETURN FROM PMOTION SUBROUTINE
+          LDA     #BNCSOUND              ;QUE UP BOUNCE SOUND
+          RTS                            ;RETURN FROM PMOTION SUBROUTINE
 
                                          ;CHECK FOR RIGHT EDGE HIT SECTION
 FLYSKP20  CMP     RIGHTSP1,X             ;IF RIGHT OF CLIFF
           BCS     FLYSKP21               ;THEN GOTO LAVA
 
-          LDA     YPOSINT,Y	;GET NEW Y
-          CMP     TOPSM11,X	;IF ABOVE CLIFF
-          BMI     FLYSKP22	;THEN GOTO FLAP SOUND SECTION
+          LDA     YPOSINT,Y              ;GET NEW Y
+          CMP     TOPSM11,X              ;IF ABOVE CLIFF
+          BMI     FLYSKP22               ;THEN GOTO FLAP SOUND SECTION
 
-          CMP     BOTSP1,X	;IF BELOW CLIFF
-          BPL     FLYSKP22	;THEN GOTO FLAP SOUND SECTION
+          CMP     BOTSP1,X               ;IF BELOW CLIFF
+          BPL     FLYSKP22               ;THEN GOTO FLAP SOUND SECTION
 
                                          ;HIT RIGHT EDGE
           LDA     RIGHTSP1,X             ;PUT STAMP JUST RIGHT OF CLIFF
           STA     XPOS,Y
 
-          LDX     STAT2,Y	;GET OLD H SPEED INTO X ALONE
-          LDA     SPCNGIFL,X	;HUAL IN POSSIBLE CHANGE SPEED
+          LDX     STAT2,Y                ;GET OLD H SPEED INTO X ALONE
+          LDA     SPCNGIFL,X             ;HUAL IN POSSIBLE CHANGE SPEED
           STA     STAT2,Y
 
 
-          LDA     #BNCSOUND	;QUE UP BOUNCE NOISE
-          RTS			;RETURN FROM PMOTION SUBROUTINE
+          LDA     #BNCSOUND              ;QUE UP BOUNCE NOISE
+          RTS                            ;RETURN FROM PMOTION SUBROUTINE
 
-FLYSKP21  LDA     YPOSINT,Y	;LAVA CHECK
+FLYSKP21  LDA     YPOSINT,Y              ;LAVA CHECK
           BPL     FLYSKP22
           CMP     #LAVAM11
           BMI     FLYSKP22
@@ -1787,21 +1805,21 @@ FLYSKP21  LDA     YPOSINT,Y	;LAVA CHECK
           STA     PDTHSNUM,Y
           LDA     #PDETHSTM
           STA     PDETHTIM,Y
-          LDA     #XPLSOUND	;QUE UP EXPLOSION NOISE
-          RTS			;RETURN FROM PMOTION SUBROUTINE
+          LDA     #XPLSOUND              ;QUE UP EXPLOSION NOISE
+          RTS                            ;RETURN FROM PMOTION SUBROUTINE
 
                                          ;SOUND SECTION FOR POSSIBLE WING NOISE
 FLYSKP22  LDA     GEN2,Y
-          CMP     #FLYFEFCP	;IF FIRST EFFECTIVE FLAP FRAME
-          BNE     FLYSKP25	;THEN
-          LDA     #FLPSOUND	;QUE UP FLAP NOISE
-          RTS			;RETURN FROM PMOTION SUBROUTINE
+          CMP     #FLYFEFCP              ;IF FIRST EFFECTIVE FLAP FRAME
+          BNE     FLYSKP25               ;THEN
+          LDA     #FLPSOUND              ;QUE UP FLAP NOISE
+          RTS                            ;RETURN FROM PMOTION SUBROUTINE
 
-FLYSKP25  LDA     #NOTSOUND     ;NO SOUND
-          RTS			;RETURN FROM PMOTION SUBROUTINE
-/********************************************************************************/
+FLYSKP25  LDA     #NOTSOUND              ;NO SOUND
+          RTS                            ;RETURN FROM PMOTION SUBROUTINE
+;********************************************************************************
 
-ADDSCORE  BIT     ATTRACT	;IF AUTOPLAY FORGET SCORING
+ADDSCORE  BIT     ATTRACT                ;IF AUTOPLAY FORGET SCORING
           BMI     ADSCEXIT
 
           SED
@@ -1829,7 +1847,7 @@ CLEARD    CLD
 
 ADSCEXIT  RTS
 
-/********************************************************************************/
+;********************************************************************************
 
 DEPENMYS
           LDA     GAMETYPE
@@ -1879,7 +1897,7 @@ ZERTPLP   STA     TYPE,X                 ;ZERO OUT ALL TYPES FIRST
           STA     TERYCNT
 BGEND     RTS
 
-/********************************************************************************/
+;********************************************************************************
 
 ;ENEMY DRIVER
 ; TYPE    BITS        10              ENEMY TYPE--0=NOTHING,1=RED,2=GREY.3=BLUE
@@ -1899,6 +1917,7 @@ BADGUY    ;SOME LOGIC SHOULD GO HERE TO DO DIFFERENT TYPES OF ENEMIES/EGG
           CMP     #$C
           BNE     BCHECK
           JMP     PTERRY
+
 ;YVELOCITY
 BCHECK    LDA     TYPE,X
           AND     #7
@@ -2145,6 +2164,7 @@ FLY16     LDA     TEMP1
           CMP     RIGHTSM1,X
           BCC     MORECOMP
           JMP     FLY20
+
 MORECOMP  CMP     LEFTSM4,X
           BCC     FLY19
 
@@ -2258,11 +2278,11 @@ SETBIT
           ORA     #2
           STA     SPEED,X
 NOSET
-          LDY     XPOS+2,X	;MOVE TERRY
+          LDY     XPOS+2,X               ;MOVE TERRY
           LDA     SPEED,X
           AND     #6
           CMP     #4
-          BCC     PTERY010      ;+/- ONE PIXEL BASED ON SPEED DIRECTION
+          BCC     PTERY010               ;+/- ONE PIXEL BASED ON SPEED DIRECTION
           BEQ     ONLY2D
           DEY
 ONLY2D    DEY
@@ -2278,17 +2298,17 @@ ONLY2I    INY
 
 PTERY040  DEC     ENEMA
           DEC     TERYCNT
-          LDA     ENEMA		;HAVE WRAP AROUND IF ONLY TERRIES OUT
-          CMP     TERYCNT	;HAVE THIS TERRY VANISH, ELSE DO WRAP
+          LDA     ENEMA                  ;HAVE WRAP AROUND IF ONLY TERRIES OUT
+          CMP     TERYCNT                ;HAVE THIS TERRY VANISH, ELSE DO WRAP
           BNE     PTERY055
 
 
           LDA     #0
-          STA     TYPE,X	;XPOS AND YPOS ?????????????
+          STA     TYPE,X                 ;XPOS AND YPOS ?????????????
           RTS
 
-PTERY050  STY     XPOS+2,X	;STORE NEW X POSSITION AND SET WING
-          LDA     FRMCNT	;POSSITION
+PTERY050  STY     XPOS+2,X               ;STORE NEW X POSSITION AND SET WING
+          LDA     FRMCNT                 ;POSSITION
           AND     #$10
           STA     TEMP0
           LDA     TYPE,X
@@ -2304,37 +2324,37 @@ PTERY055
 
 
 
-SKIPMSK   DC      0,$FE,$1E,$6
-SKIPDIR   DC      0,$FE,$7E,$3E
-UPSPEED   DC      $04,$05,$06,$07,$04,$04,$04,$04
-DWNSPD    DC      0,1,$02,$03,0,0,0,0
-XSPEED    DC      01,01,01,02,-1,-1,-1,-2
-XSPEED1   DC      01,01,02,02,-1,-1,-2,-2
-XSPEED2   DC      01,02,01,02,-1,-2,-1,-2
-XSPEED3   DC      01,01,01,02,-1,-1,-1,-2
-XSPEED4   DC      01,01,02,02,-1,-1,-2,-2
-XSPEED5   DC      01,01,01,02,-1,-1,-1,-2
-XSPEED6   DC      01,02,01,02,-1,-2,-1,-2
-XSPEED7   DC      01,01,02,02,-1,-1,-2,-2
+SKIPMSK   dc      0,$FE,$1E,$6
+SKIPDIR   dc      0,$FE,$7E,$3E
+UPSPEED   dc      $04,$05,$06,$07,$04,$04,$04,$04
+DWNSPD    dc      0,1,$02,$03,0,0,0,0
+XSPEED    dc      01,01,01,02,-1,-1,-1,-2
+XSPEED1   dc      01,01,02,02,-1,-1,-2,-2
+XSPEED2   dc      01,02,01,02,-1,-2,-1,-2
+XSPEED3   dc      01,01,01,02,-1,-1,-1,-2
+XSPEED4   dc      01,01,02,02,-1,-1,-2,-2
+XSPEED5   dc      01,01,01,02,-1,-1,-1,-2
+XSPEED6   dc      01,02,01,02,-1,-2,-1,-2
+XSPEED7   dc      01,01,02,02,-1,-1,-2,-2
 
-YSPEED0   DC      01,01,01,01,-1,-1,-1,-1 ;SPEED0   POSITIVE-DOWN
-SPEED1    DC      00,00,00,01,00,00,00,-1
-SPEED2    DC      00,01,01,01,00,-1,-1,-1
-SPEED3    DC      00,00,01,01,00,00,-1,-1
-SPEED4    DC      01,01,00,01,-1,-1,00,-1 ;SPEED4   NEGATIVE-UP
-SPEED5    DC      00,00,01,01,00,00,-1,-1
-SPEED6    DC      00,01,01,01,00,-1,-1,-1
-SPEED7    DC      00,00,00,01,00,00,00,-1
+YSPEED0   dc      01,01,01,01,-1,-1,-1,-1        ;SPEED0   POSITIVE-DOWN
+SPEED1    dc      00,00,00,01,00,00,00,-1
+SPEED2    dc      00,01,01,01,00,-1,-1,-1
+SPEED3    dc      00,00,01,01,00,00,-1,-1
+SPEED4    dc      01,01,00,01,-1,-1,00,-1        ;SPEED4   NEGATIVE-UP
+SPEED5    dc      00,00,01,01,00,00,-1,-1
+SPEED6    dc      00,01,01,01,00,-1,-1,-1
+SPEED7    dc      00,00,00,01,00,00,00,-1
 
-UB        DC      LOWER+4,UPPER+4,0
-LB        DC      LAVAM11-1,LOWER-21,UPPER-21
-REVZONE   DC      2,1,0
-
-
-/********************************************************************************//
+UB        dc      LOWER+4,UPPER+4,0
+LB        dc      LAVAM11-1,LOWER-21,UPPER-21
+REVZONE   dc      2,1,0
 
 
-EXPLH     LDA     #EXP0SNUM	;START PLAYER X EXLODING
+;********************************************************************************
+
+
+EXPLH     LDA     #EXP0SNUM              ;START PLAYER X EXLODING
           STA     PDTHSNUM,X
           LDA     #PDETHSTM
           STA     PDETHTIM,X
@@ -2345,7 +2365,7 @@ EXPLH     LDA     #EXP0SNUM	;START PLAYER X EXLODING
           LDA     #$50
           LDY     #0
 
-          BIT     ATTRACT	;IF AUTOPLAY FORGET SCORING
+          BIT     ATTRACT                ;IF AUTOPLAY FORGET SCORING
           BMI     KGOEXIT
 
           SED
@@ -2374,7 +2394,7 @@ CLRD      CLD
 KGOEXIT   LDY     ZONECNT
           JMP     EXPL020
 
-EXPLE     LDA     TYPE-2,X	;START ENEMY EXPLODING
+EXPLE     LDA     TYPE-2,X               ;START ENEMY EXPLODING
           ORA     #4
           STA     TYPE-2,X
           LDA     #$20
@@ -2407,9 +2427,9 @@ EXPL020   TXA
           STA     SCNTRLI0,X
 RETEXPL   RTS
 
-/********************************************************************************
+;********************************************************************************
 
-*********************************************************************************/
+;********************************************************************************
 
 TCOLIDE   SEC
           LDA     YPOSINT,X
@@ -2419,42 +2439,42 @@ TCOLIDE   SEC
           CMP     #-9
           BCC     TCOLI010
 TCOLI030  STA     TEMP0
-          SEC			;TERRY COLLISION DETECTOR...
+          SEC                            ;TERRY COLLISION DETECTOR...
           LDA     XPOS,X
           SBC     XPOS,Y
 
-          CMP     #16		;TERY LEFT OF PLAYER
-          BCC     TCOLI020	;HORIZONTAL INTERSECT GOTO VERT CHECK
+          CMP     #16                    ;TERY LEFT OF PLAYER
+          BCC     TCOLI020               ;HORIZONTAL INTERSECT GOTO VERT CHECK
 
-          CMP     #-7		;PLAYER LEFT OF TERY
+          CMP     #-7                    ;PLAYER LEFT OF TERY
           BCS     TCOLI020
 TCOLI010  RTS
 
-TCOLI020  STA     TEMP1		;STORE FOR LATTER FACING CHECK
+TCOLI020  STA     TEMP1                  ;STORE FOR LATTER FACING CHECK
           LDA     TEMP0
           CMP     #2
-          BCC     TCOLI070	;GOTO CHECK FOR POSSIBLE PLAYER WIN
+          BCC     TCOLI070               ;GOTO CHECK FOR POSSIBLE PLAYER WIN
           CMP     #-1
           BCS     TCOLI070
 
           CMP     #9
-          BCC     TCOLI050	;GOTO KILL PLAYER
+          BCC     TCOLI050               ;GOTO KILL PLAYER
 
           CMP     #-9
           BCC     TCOLI010
-TCOLI050  JMP     EXPLH		;KILL THIS PLAYER QUICKLY!
+TCOLI050  JMP     EXPLH                  ;KILL THIS PLAYER QUICKLY!
 
-TCOLI070  LDA     TEMP1		;PLAY MAY KILL TERRY IF FACING CORRECT
+TCOLI070  LDA     TEMP1                  ;PLAY MAY KILL TERRY IF FACING CORRECT
           BMI     TCOLI090
 
           LDA     STATES,X
-          BMI     TCOLI100	;GOTO KILL TERRY
-TCOLI080  JMP     EXPLH		;ELSE KILL PLAYER FAST
+          BMI     TCOLI100               ;GOTO KILL TERRY
+TCOLI080  JMP     EXPLH                  ;ELSE KILL PLAYER FAST
 
 TCOLI090  LDA     STATES,X
-          BMI     TCOLI080	;KILL PLAYER
+          BMI     TCOLI080               ;KILL PLAYER
 
-TCOLI100  LDA     #TIESOUND	;KILL THIS TERRY !!
+TCOLI100  LDA     #TIESOUND              ;KILL THIS TERRY !!
           CMP     SCNTRLI0,X
           BCC     NOEXPL
           STA     SCNTRLI0,X
@@ -2470,7 +2490,7 @@ BONK
 
           LDA     TYPE-2,Y
           AND     #$F
-          CMP     #$C		;IF TERRY GOTO TERRY COLLISION CHECKER
+          CMP     #$C                    ;IF TERRY GOTO TERRY COLLISION CHECKER
           BEQ     TCOLIDE
 
           AND     #7
@@ -2520,7 +2540,7 @@ PUNT      RTS
 NOBOINK
           BMI     XWIN
 
-YWIN      JSR     EXPLH		;KILL PLAYER 0
+YWIN      JSR     EXPLH                  ;KILL PLAYER 0
 
           CPY     #1
           BEQ     CONFRONT
@@ -2562,7 +2582,7 @@ XWIN      LDA     YVELINT,X
           LDA     #$FF
           STA     YVELINT,X
 
-NOBNC2    CPY     #1		;IF PLAYER 0 KILLED PLAYER 1 AWARD 2000
+NOBNC2    CPY     #1                     ;IF PLAYER 0 KILLED PLAYER 1 AWARD 2000
           BNE     XWIN010
 ;         LDX     TEMP2
           LDA     GLADRAG
@@ -2585,8 +2605,8 @@ BONO      LDA     GLADRAG                ;CLEAR FLAG FOR TEAM WAVE
           JMP     EXPLH
 
 
-XWIN010   LDA     TYPE-2,Y	;AWARD ENEMY VALUE TO WHATEVER PLAYER
-          AND     #3		;KILLED IT
+XWIN010   LDA     TYPE-2,Y               ;AWARD ENEMY VALUE TO WHATEVER PLAYER
+          AND     #3                     ;KILLED IT
           TAX
           LDA     ENSCRLOW,X
           LDY     ENSCRMID,X
@@ -2645,10 +2665,10 @@ NOFUN
 MOO       RTS
 
 
-EGLO      DC      $50,$00,$50            ;NEEDS FOLLOWING ZERO
-ENSCRLOW  DC      0,0,$50                ;NEEDS FOLLOWING ZERO
-ENSCRMID  DC      0,5,7,$15
-EGMID     DC      $02,$05,$07,$10
+EGLO      dc      $50,$00,$50            ;NEEDS FOLLOWING ZERO
+ENSCRLOW  dc      0,0,$50                ;NEEDS FOLLOWING ZERO
+ENSCRMID  dc      0,5,7,$15
+EGMID     dc      $02,$05,$07,$10
 
 BOINK     LDA     XPOS,X
           SEC
@@ -2670,6 +2690,7 @@ STBX      STA     XPOS,X
           LDA     #RMSTSPXL
 STBY      STA     XPOS,Y
           JMP     DELTAV
+
 DECX      CMP     #-123
           BCC     INCX
 DXCX      LDA     XPOS,Y
@@ -2723,178 +2744,187 @@ DV020     TXA
           STA     SCNTRLI0,X
 RETBNK    RTS
 
-REVERSO   DC      5,6,7,8,9,0,1,2,3,4
-EREVERSE  DC      4,5,6,7,0,1,2,3
+REVERSO   dc      5,6,7,8,9,0,1,2,3,4
+EREVERSE  dc      4,5,6,7,0,1,2,3
 
-	
-/*         THIS IS A VECTOR OF COLORS TO ROTATE THRU FOR THE TITLE PAGE ????? */
+;*         THIS IS A VECTOR OF COLORS TO ROTATE THRU FOR THE TITLE PAGE ?????
 
-ROT       DC      $40,$52,$64,$76,$88,$9A,$AC,$0E,$28
+ROT       dc      $40,$52,$64,$76,$88,$9A,$AC,$0E,$28
 
 
-RACKLO    DC      <RACK0ENM,<RACK1ENM,<RACK2ENM,<RACK3ENM,<RACK4ENM
-          DC      <RACK5ENM,<RACK6ENM,<RACK7ENM,<RACK8ENM,<RACK9ENM
-          DC      <RACK10EN,<RACK11EN,<RACK12EN,<RACK13EN,<RACK14EN
-          DC      <RACK15EN,<RACK16EN,<RACK17EN,<RACK18EN,<RACK19EN
-          DC      <RACK20EN,<RACK21EN,<RACK22EN,<RACK23EN,<RACK24EN
-          DC      <RACK25EN,<RACK26EN
+RACKLO    dc      <(RACK0ENM),<(RACK1ENM),<(RACK2ENM),<(RACK3ENM),<(RACK4ENM)
+          dc      <(RACK5ENM),<(RACK6ENM),<(RACK7ENM),<(RACK8ENM),<(RACK9ENM)
+          dc      <(RACK10EN),<(RACK11EN),<(RACK12EN),<(RACK13EN),<(RACK14EN)
+          dc      <(RACK15EN),<(RACK16EN),<(RACK17EN),<(RACK18EN),<(RACK19EN)
+          dc      <(RACK20EN),<(RACK21EN),<(RACK22EN),<(RACK23EN),<(RACK24EN)
+          dc      <(RACK25EN),<(RACK26EN)
 
-/********************************************************************************/
+;********************************************************************************
 RACK7ENM
-RACK3ENM  DC      4,4,4,4,4,4
+RACK3ENM  dc      4,4,4,4,4,4
 RACK15EN
 RACK19EN
-RACK11EN  DC      5,5,5,5,5,5
+RACK11EN  dc      5,5,5,5,5,5
 RACK0ENM
 RACK1ENM
 RACK4ENM                                 ;PLUS A TERRY
-RACK2ENM  DC      1
+RACK2ENM  dc      1
 RACK10EN
-RACK5ENM  DC      1
+RACK5ENM  dc      1
 RACK8ENM                                 ;PLUS A TERRY
 RACK9ENM
 RACK6ENM
-RACK12EN  DC      1,2,2,2,3
+RACK12EN  dc      1,2,2,2,3
 RACK14EN                                 ;PLUS A TERRY
-RACK13EN  DC      1
-RACK16EN  DC      2
+RACK13EN  dc      1
+RACK16EN  dc      2
 RACK18EN                                 ;PLUS A TERRY
 RACK17EN
-RACK20EN  DC      2
+RACK20EN  dc      2
 RACK22EN                                 ;PLUS A TERRY
 RACK24EN
 RACK25EN
 RACK26EN                                 ;PLUS A TERRY
-RACK21EN  DC      3,3,3,3,3,3
-RACK23EN  DC      6,6,6,6,6,6
+RACK21EN  dc      3,3,3,3,3,3
+RACK23EN  dc      6,6,6,6,6,6
 
-ENEMATBL  DC      2,3,4,6,$83,4,4,6,$83,4,5,6,5,5,$84,6,5,5,$85,6,6,6,$85,6,6,6
-          DC      $85
+ENEMATBL  dc      2,3,4,6,$83,4,4,6,$83,4,5,6,5,5,$84,6,5,5,$85,6,6,6,$85,6,6,6
+          dc      $85
 
 ENDF
-/*         ORG     $FD40
-*         CCHKNUMS IS A VECTOR OF CLIFF NUMBERS.  THERE IS ONE ENTRY FOR EVERY 
-*                 FOUR LINES.  THESE ARE LEFTS CLIFF NUMBERS.  IF THE STAMP
-*                 IS ON THE RIGHT OF THE SCREEN THE CLIFF NUMBER MUST BE
-*                 WRAPED AROUND USING THE VECTOR WCLFWRAP.
-*/
+;*         ORG     $FD40
 
-CCHKNUMS  DC      5,5,5,5,5,5,5,5,6,6
-          DC      6,6,6,2,2,2,2,2,2,2
-          DC      2,2,3,3,3,3,3,0,0,0
-          DC      0,0,0,0,0,0,0,0,0,0
+;*         CCHKNUMS IS A VECTOR OF CLIFF NUMBERS.  THERE IS ONE ENTRY FOR EVERY
+;*                 FOUR LINES.  THESE ARE LEFTS CLIFF NUMBERS.  IF THE STAMP
+;*                 IS ON THE RIGHT OF THE SCREEN THE CLIFF NUMBER MUST BE
+;*                 WRAPED AROUND USING THE VECTOR WCLFWRAP.
+
+CCHKNUMS  dc      5,5,5,5,5,5,5,5,6,6
+          dc      6,6,6,2,2,2,2,2,2,2
+          dc      2,2,3,3,3,3,3,0,0,0
+          dc      0,0,0,0,0,0,0,0,0,0
 CLIFWRAP
-WCLFWRAP  DC      0,1,4,3,2,7,6,5
+WCLFWRAP  dc      0,1,4,3,2,7,6,5
 
-/*         THESE VECTORS CONTAIN THE BOUNDRY PIXELS OF THE CLIFFS */
-/*         THE REGULAR VALUES ARE NEVER USED ONLY THE ONES WITH +'S AND -'S */
+;*         THESE VECTORS CONTAIN THE BOUNDRY PIXELS OF THE CLIFFS
+;*         THE REGULAR VALUES ARE NEVER USED ONLY THE ONES WITH +'S AND -'S
 
-/*RIGHTS    DC      096,148,032,080,148,024,084,148 */
-/*LEFTS     DC      032,001,001,048,096,001,044,104 */
-/*TOPS      DC      156,156,084,104,084,028,048,028 */
-/*BOTS      DC      191,159,087,107,087,031,051,031 */
+;*RIGHTS    dc      96,148,32,80,148,24,84,148
+;*LEFTS     dc      32,01,01,48,96,01,44,104
+;*TOPS      dc      156,156,84,104,84,28,48,28
+;*BOTS      dc      191,159,87,107,87,31,51,31
 
-/*         THESE VECTORS CONTAIN CLIFF BOUNDIES +/- (P/M) A CONSTANT */
+;*         THESE VECTORS CONTAIN CLIFF BOUNDIES +/- (P/M) A CONSTANT
 
-/*RIGHTSM2  DC      094,146,030,078,146,022,082,146 */
-RIGHTSM1  DC      95,147,31,79,147,23,83,147
-RIGHTSP1  DC      97,129,33,81,129,25,85,129
-LEFTSM4   DC      28,0,0,44,92,0,40,100
-LEFTSM7   DC      25,0,0,41,89,0,37,97
-TOPSM9    DC      147                    ;,147,075,095,075,019,039,019
-TOPSM11   DC      145,145,73,93,73,17,37,17
-TOPSM15   DC      141,141,69,89,69,13,33,13
-BOTSP1    DC      192,160,88,108,88,32,52,32
+;*RIGHTSM2  dc      94,146,30,78,146,22,82,146
+RIGHTSM1  dc      95,147,31,79,147,23,83,147
+RIGHTSP1  dc      97,129,33,81,129,25,85,129
+LEFTSM4   dc      28,00,00,44,92,00,40,100
+LEFTSM7   dc      25,00,00,41,89,00,37,97
+TOPSM9    dc      147                    ;,147,75,95,75,19,39,19
+TOPSM11   dc      145,145,73,93,73,17,37,17
+TOPSM15   dc      141,141,69,89,69,13,33,13
+BOTSP1    dc      192,160,88,108,88,32,52,32
 
 LAVA      EQU     158
 LAVAM11   EQU     147
 
-/*         CLIFIGS IS A VECTOR OF CLIF CONFIGURATIONS.  THE CURRENT ONE IS */
-/*                 INDEXED BY CFIGINDX IN RAM.  BITS  ARE SET IDICATING WHICH */
-/*                 CLIFFS ARE IN THE CURRENT CONFIGURATION.  MAPPED AS 76543210 */
+;*         CLIFIGS IS A VECTOR OF CLIF CONFIGURATIONS.  THE CURRENT ONE IS
+;*                 INDEXED BY CFIGINDX IN RAM.  BITS  ARE SET IDICATING WHICH
+;*                 CLIFFS ARE IN THE CURRENT CONFIGURATION.  MAPPED AS 76543210
 
-CLIFIGS   DC      $FF,$B7,$B5,$FD
-          DC      $BD,$1D,$15,$FD
-          DC      $5D,$55,$15,$FD
-          DC      $F5,$B5,$15
+CLIFIGS   dc      $FF,$B7,$B5,$FD
+          dc      $BD,$1D,$15,$FD
+          dc      $5D,$55,$15,$FD
+          dc      $F5,$B5,$15
 
 
-/*         CNUMASKS IS A VECTOR OF MASKS FOR EACH CLIFF NUMBER.   THESE ARE */
-/*                 USED WITH THE CONFIGURATIONS ABOVE TO DETERMINE IF A GIVEN */
-/*                 CLIFF IS IN A PARTICULAR RACK. */
+;*         CNUMASKS IS A VECTOR OF MASKS FOR EACH CLIFF NUMBER.   THESE ARE
+;*                 USED WITH THE CONFIGURATIONS ABOVE TO DETERMINE IF A GIVEN
+;*                 CLIFF IS IN A PARTICULAR RACK.
 
-CNUMASKS  DC      $01,$02,$04,$08,$10,$20,$40,$80
+CNUMASKS  dc      $01,$02,$04,$08,$10,$20,$40,$80
 
-/*         THIS VECTOR IS THE NUMBER OF FRAME COUNT WRAPS FOR INITIALIZES THE */
-/*                 TERRY TIMES */
+;*         THIS VECTOR IS THE NUMBER OF FRAME COUNT WRAPS FOR INITIALIZES THE
+;*                 TERRY TIMES
 
-TITIMES   DC      3,4,5,9,11
+TITIMES   dc      3,4,5,9,11
 
-/*         ACCELS IS A VECTOR CONTAINING THE GRAVITATIONAL AND RESULTANT */
-/*                 UPWARD ACCELERATIONS.  THE UNITS ARE RASTERS PER FRAME SQUARED */
+;*         ACCELS IS A VECTOR CONTAINING THE GRAVITATIONAL AND RESULTANT
+;*                 UPWARD ACCELERATIONS.  THE UNITS ARE RASTERS PER FRAME SQUARED
 
-ACCELS    DC      $0B                    ;GRAVITY ACCEL FRACTION
-          DC      $0                     ;GRAVITY ACCEL INTEGER
-          DC      $C0                    ;UP ACCEL FRACTION
-          DC      $FF                    ;UP ACCEL INTEGER
+ACCELS    dc      $0B                    ;GRAVITY ACCEL FRACTION
+          dc      $0                     ;GRAVITY ACCEL INTEGER
+          dc      $C0                    ;UP ACCEL FRACTION
+          dc      $FF                    ;UP ACCEL INTEGER
 
-/*         THE NEXT TWO VECTORS ARE THE HORIZONT SPEEDS CHANGE 1 LEFT OR RIGHT */
+;*         THE NEXT TWO VECTORS ARE THE HORIZONT SPEEDS CHANGE 1 LEFT OR RIGHT
 
-SPEDCNGR  DC      1,2,3,4,4,0,5,6,7,8
-SPEDCNGL  DC      5,0,1,2,3,6,7,8,9,9
+SPEDCNGR  dc      1,2,3,4,4,0,5,6,7,8
+SPEDCNGL  dc      5,0,1,2,3,6,7,8,9,9
 
-/*         THESE VECTORS CONTAIN X SPEED CHANGED AND INVERTED IF MOVING L/R */
+;*         THESE VECTORS CONTAIN X SPEED CHANGED AND INVERTED IF MOVING L/R
 
-SPCNGIFR  DC      6,6,6,7,7,5,6,7,8,9
-SPCNGIFL  DC      0,1,2,3,4,1,1,1,2,2
+SPCNGIFR  dc      6,6,6,7,7,5,6,7,8,9
+SPCNGIFL  dc      0,1,2,3,4,1,1,1,2,2
 
-/*         THIS VECTOR CONTAINS X SPEED SLOWED BY ONE */
+;*         THIS VECTOR CONTAINS X SPEED SLOWED BY ONE
 
-SPEEDEC   DC      0,0,1,2,3,5,5,6,7,8
+SPEEDEC   dc      0,0,1,2,3,5,5,6,7,8
 
-/*         THESE  NUMBERS ARE NEW FLYING SPEEDS INDEXED BY SPEED */
-/*                 AND ONE BIT FOR STICK LEFT/RIGHT */
+;*         THESE  NUMBERS ARE NEW FLYING SPEEDS INDEXED BY SPEED
+;*                 AND ONE BIT FOR STICK LEFT/RIGHT
 
-NFSTAT2   DC      $01,$06,$02,$00,$04,$01,$04,$02,$04,$02
-          DC      $01,$06,$05,$07,$06,$09,$07,$09,$07,$09
+NFSTAT2   dc      $01,$06,$02,$00,$04,$01,$04,$02,$04,$02
+          dc      $01,$06,$05,$07,$06,$09,$07,$09,$07,$09
 
-/*         THESE ARE THE DELTA X NUMBERS FOR ALL SPEEDS BY MOD 4 FRAME COUNT */
+;*         THESE ARE THE DELTA X NUMBERS FOR ALL SPEEDS BY MOD 4 FRAME COUNT
 
-DELTAX    DC      0,0,0,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1
-          DC      0,0,0,0,-1,0,0,0,-1,0,-1,0,-1,-1,-1,0,-1,-1,-1,-1
+DELTAX    dc      0,0,0,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1
+          dc      0,0,0,0,-1,0,0,0,-1,0,-1,0,-1,-1,-1,0,-1,-1,-1,-1
 
-/*         THESE ARE THE STARTING X POSSITIONS FOR CLIFF ONE BIRTHS */
+;*         THESE ARE THE STARTING X POSSITIONS FOR CLIFF ONE BIRTHS
 
-C1XPOS    DC      40,82
+C1XPOS    dc      40,82
 
-/*         THIS VECTOR CONTAINS THE INITIAL WALK STATES BASED ON SPEED AND FACING */
+;*         THIS VECTOR CONTAINS THE INITIAL WALK STATES BASED ON SPEED AND FACING
 
-IWLKSTAT  DC      $70,$F0,$70,$70,$70,$70,$70,$70,$70,$70
-          DC      $70,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+IWLKSTAT  dc      $70,$F0,$70,$70,$70,$70,$70,$70,$70,$70
+          dc      $70,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
 
-/*         THIS VECTOR CONTAINS THE INITIAL WALK GENERALS BASED ON CLIFF NUMBER */
+;*         THIS VECTOR CONTAINS THE INITIAL WALK GENERALS BASED ON CLIFF NUMBER
 
-/*IWLKGENS  DC      $8C,$9C,$AC,$BC,$CC,$DC,$EC,$FC */
+;*IWLKGENS  dc      $8C,$9C,$AC,$BC,$CC,$DC,$EC,$FC
 
-/*         THIS VECTOR CONTAINS THE RESULTANT INTEGER VELOCITIES */
+;*         THIS VECTOR CONTAINS THE RESULTANT INTEGER VELOCITIES
 
-TERMVELS  DC      0,1,2,2,2,2,2,2
-          DC      -3,-3,-3,-3,-3,-3,-2,-1
+TERMVELS  dc      0,1,2,2,2,2,2,2
+          dc      -3,-3,-3,-3,-3,-3,-2,-1
 
-/*         THIS VECTOR CONTAINS THE CLIFF BOTTOM BOUNCE VELOCITIES INDEXED BY */
-/*                 OLD YVELINT AND #$0F */
+;*         THIS VECTOR CONTAINS THE CLIFF BOTTOM BOUNCE VELOCITIES INDEXED BY
+;*                 OLD YVELINT AND #$0F
 
-CLFBVELS  DC      0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0
+CLFBVELS  dc      0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0
 ENDFF
 
-          ORG     $FFF2
+          ORG     $1ff2
+          RORG    $FFF2
+
+  IF ORIGINAL
 GOBANKD   JMP     DOBANKD
+  ELSE
+GOBANKD   sta     $fff9
+  ENDIF
+
 DOBANKF   JMP     NOSEL
-          ORG     $FFFC
 
-          DC      <FBANK,>FBANK      ; INTERRUPT RESET VECTOR
+          ORG     $1ffc
+          RORG    $FFFC
 
-          ORG     $D000
+          dc      <(FBANK),>(FBANK)      ; INTERRUPT RESET VECTOR
+
+          ORG      $2000
+          RORG     $D000
           NOP
           NOP
           NOP
@@ -2917,7 +2947,7 @@ INITRAM   STA     WSYNC,X
           STA     LINECNT
 
           JMP     NEWFRAME
-/*********** */
+;***********
 
 
 ;POSITION PLAYERS FOR BITMAP
@@ -3010,14 +3040,14 @@ SNDRIVER
           BMI     SNDEXIT
 
 DOSND
-          LDA     #>SOUNDS
+          LDA     #>(SOUNDS)
           STA     PTR0H
           STA     PTR1H
           LDX     #1
 SOUNDLP
-          LDA     SCNTRLI0,X	;IF SOUND CONTROL >= CURRENT SOUND
-          CMP     SNDTYP0,X	;THEN INITIATE SOUND OF SOUND CONTROL
-          BCC     SNDSKP10	;ELSE DO CURRENT SOUND
+          LDA     SCNTRLI0,X             ;IF SOUND CONTROL >= CURRENT SOUND
+          CMP     SNDTYP0,X              ;THEN INITIATE SOUND OF SOUND CONTROL
+          BCC     SNDSKP10               ;ELSE DO CURRENT SOUND
 
           STA     SNDTYP0,X
           TAY
@@ -3328,11 +3358,11 @@ LABEL     DEY
           CPY     #1
           BNE     LOOP
 
-          LDA     #<P0VTBL
+          LDA     #<(P0VTBL)
           STA     PTR0
           DEY                            ;Y GOES FROM 1 TO 0
           STY     PTR0H
-          LDA     #<P1VTBL
+          LDA     #<(P1VTBL)
           STA     PTR1
           JMP     SQUISH
 
@@ -3543,7 +3573,7 @@ DONEP1
           LDA     MTINDX,X
           STA     MPTR
 
-          LDA     #>RWALK0
+          LDA     #>(RWALK0)
           STA     PTR0H
           STA     PTR1H
           LDA     #1
@@ -3554,71 +3584,72 @@ BWLOOP    LDA     INTIM
           BNE     BWLOOP
 JKERN     JMP     KERNAL
 
-LENGTH    DC      0,4,4,23,0,9,7,21,0,15,19,12,11,13,23
+LENGTH    dc      0,4,4,23,0,9,7,21,0,15,19,12,11,13,23
 
-LOWBYTE   DC      <RWALK0,<RWALK1,<RWALK2,<RWALK3,<RSKID
-          DC      <RWINGUP,<RWINGDWN,<REXPL0,<REXPL1,<REXPL2
-          DC      <RTERYWUP,<RTERYWDN,<EGG
+LOWBYTE   dc      <(RWALK0),<(RWALK1),<(RWALK2),<(RWALK3),<(RSKID)
+          dc      <(RWINGUP),<(RWINGDWN),<(REXPL0),<(REXPL1),<(REXPL2)
+          dc      <(RTERYWUP),<(RTERYWDN),<(EGG)
 
-LIVES1    DC      $D2,$95,$95,$95,$95,$95,$95
+LIVES1    dc      $D2,$95,$95,$95,$95,$95,$95
 
 
-LFTABL    DC      <WALKFRQ
-          DC      <FLAPFRQ,<BNCEFRQ
-          DC      <SKIDFRQ,<NULL
-          DC      <EXPLFRQ,<BRTHFRQ
-          DC      <SHLDFRQ,<NULL
-          DC      <TIEDFRQ
-          DC      <SCRCHFRQ,<VBRTHFRQ
-          DC      <EGGHHFRQ,<EATEGFRQ
-          DC      <EXTRFRQ
+LFTABL    dc      <(WALKFRQ)
+          dc      <(FLAPFRQ),<(BNCEFRQ)
+          dc      <(SKIDFRQ),<(NULL)
+          dc      <(EXPLFRQ),<(BRTHFRQ)
+          dc      <(SHLDFRQ),<(NULL)
+          dc      <(TIEDFRQ)
+          dc      <(SCRCHFRQ),<(VBRTHFRQ)
+          dc      <(EGGHHFRQ),<(EATEGFRQ)
+          dc      <(EXTRFRQ)
 
 ENDSOUND
 
 SOUNDS
-EATEGFRQ  DC      $C,$D,$E,$F,$10,$11,$12,$13,$15,$17,$19,$1B,$1D,$1F
-TIEDFRQ   DC      $12,$11,$10,$0F
-BRTHFRQ   DC      $10,$1D,$00,$11,$1E,$00,$12
+EATEGFRQ  dc      $C,$D,$E,$F,$10,$11,$12,$13,$15,$17,$19,$1B,$1D,$1F
+TIEDFRQ   dc      $12,$11,$10,$0F
+BRTHFRQ   dc      $10,$1D,$00,$11,$1E,$00,$12
                                          ;THESE TWO ARE CONNECTED
-EXPLFRQ   DC      $1F,$1E,$1D,$1B,$19,$17,$15,$13,$11
-          DC      $F
-SHLDFRQ   DC      $0B,$0C,$0D,$0E,$0F,$10,$11,$12
-          DC      $13                    ;THESE TWO ARE CONNECTED
-VBRTHFRQ  DC      $14,$15,$16,$17,$18,$19,$1A,$1B
-          DC      $1C,$1D,$1E,$1F
-BNCEFRQ   DC      $1F,$D,$C,$B           ;THESE TWO ARE CONNECTED
-          DC      $A
+EXPLFRQ   dc      $1F,$1E,$1D,$1B,$19,$17,$15,$13,$11
+          dc      $F
+SHLDFRQ   dc      $0B,$0C,$0D,$0E,$0F,$10,$11,$12
+          dc      $13                    ;THESE TWO ARE CONNECTED
+VBRTHFRQ  dc      $14,$15,$16,$17,$18,$19,$1A,$1B
+          dc      $1C,$1D,$1E,$1F
+BNCEFRQ   dc      $1F,$D,$C,$B           ;THESE TWO ARE CONNECTED
+          dc      $A
 
-SCRCHFRQ  DC      $F,$F,$F,$E,$E,$D,$C,$B,$A,$9,$8,$7,$6,$6,$6,$6,$6,$6
-          DC      $6,$6
+SCRCHFRQ  dc      $F,$F,$F,$E,$E,$D,$C,$B,$A,$9,$8,$7,$6,$6,$6,$6,$6,$6
+          dc      $6,$6
 
-EGGHHFRQ  DC      0,3,7,9
-EGGHHVOL  DC      0,7,6,5
-EXTRFRQ   DC      $16,$11,$E,$C
+EGGHHFRQ  dc      0,3,7,9
+EGGHHVOL  dc      0,7,6,5
+EXTRFRQ   dc      $16,$11,$E,$C
 
-FLAPVOL   DC      2,3,5,6
-          DC      3
-TIEDVOL   DC      2,4,6,8
-EXPLVOL   DC      1,2,3
-WALKFRQ   DC      4,5,6
-WALKVOL   DC      7,8,9
+FLAPVOL   dc      2,3,5,6
+          dc      3
+TIEDVOL   dc      2,4,6,8
+EXPLVOL   dc      1,2,3
+WALKFRQ   dc      4,5,6
+WALKVOL   dc      7,8,9
                                          ;THESE TWO ARE CONNECTED
-SKIDFRQ   DC      $19,$1B,$1C,$1A,$18,$1B,$17,$19,$1A,$19,$1C,$18
-          DC      $1A,$17,$19,$1C,$1A,$17,$1B,$19,$18,$19,$1B
-FLAPFRQ   DC      $18,$18,$18,$18        ;THESE TWO ARE CONNECTED
-          DC      $18
-BNCEVOL   DC      6,6,6                  ;THESE TWO ARE CONNECTED
-BRTHVOL   DC      6,6,0,6,6,0,6
-          DC      6
+SKIDFRQ   dc      $19,$1B,$1C,$1A,$18,$1B,$17,$19,$1A,$19,$1C,$18
+          dc      $1A,$17,$19,$1C,$1A,$17,$1B,$19,$18,$19,$1B
+FLAPFRQ   dc      $18,$18,$18,$18        ;THESE TWO ARE CONNECTED
+          dc      $18
+BNCEVOL   dc      6,6,6                  ;THESE TWO ARE CONNECTED
+BRTHVOL   dc      6,6,0,6,6,0,6
+          dc      6
 
-EATEGVOL  DC      2,3,4,4,5,5,6,7,8,9,$A,$A,$B,$B
-EXTRVOL   DC      2,4,6,7,9,$B
+EATEGVOL  dc      2,3,4,4,5,5,6,7,8,9,$A,$A,$B,$B
+EXTRVOL   dc      2,4,6,7,9,$B
 
-TEDDY     DC      $38,$6C,$6C,$7C,$54,$BA,$C6
+TEDDY     dc      $38,$6C,$6C,$7C,$54,$BA,$C6
 
 ENDLOAD
 
-          ORG     $D4F6
+          ORG     $24f6
+          RORG    $D4F6
 
 KERNAL    STA     WSYNC
           LDA     #0                     ;2
@@ -3690,11 +3721,13 @@ PS0       DEY                            ;23
           STA     P1VOFF                 ;37
 
           JMP     PP0DP1                 ;40
+
 DOAP0     STA     P0VOFF                 ;31
           DEC     P1VOFF                 ;36
           BNE     DDP                    ;38/39
           STA     P1VOFF                 ;41
           JMP     DP0DP1                 ;44
+
 DDP       JMP     DP0PP1                 ;42
 
 
@@ -3759,6 +3792,7 @@ POS0      DEY                            ;23
           LDX     ZONECNT                ;9
           BNE     NOEND                  ;11/12
           JMP     ENDKERN
+
 NOEND     LDY     P0VOFF                 ;15
           BEQ     GOINP0                 ;17/18
           DEC     P1VOFF                 ;22
@@ -3767,12 +3801,15 @@ NOEND     LDY     P0VOFF                 ;15
           STA     HMCLR
 
           JMP     PP0DP1PF               ;30
+
 GOINP0    STA     P0VOFF                 ;21
           DEC     P1VOFF                 ;26
           BNE     DPFPP0                 ;28/29
           STA     P1VOFF                 ;31
           JMP     DP0DP1PF               ;34
+
 DPFPP0    JMP     WASTE303               ;32
+
 POOPP1PF  NOP                            ;27 (28 ON PAGE CROSS)
 WASTE102  NOP                            ;32
           NOP                            ;34
@@ -3780,7 +3817,7 @@ WASTE101  NOP
 ;WASTE TIME HERE
 PP0PP1PF  STA     HMCLR                  ;37     3
 OHMY      TXA                            ;39     5
-          LSR                      ;41     7
+          LSR                            ;41     7
           LDY     MPTR                   ;44     10
           LDA     PF,X                   ;48     14
           BEQ     AROUND                 ;50/51  16/17
@@ -3791,9 +3828,11 @@ ARNDINC   LDY     #0                     ;61     27
           STA     PF2+$100               ;66     32
           STY     PF1                    ;69     35
           JMP     PP0PP1                 ;72     38
+
 PF1ST     STY     PF2                    ;67     33
           STA     PF1                    ;70     36
           JMP     PP0PP1                 ;73     39
+
 AROUND    STA     HMCLR
           NOP
           BEQ     ARNDINC                ;
@@ -3869,25 +3908,29 @@ DONE31A   LDA     (PTR1),Y               ;60
           LDX     ZONECNT
           BNE     FOOBAR
           JMP     ENDKERN
+
 FOOBAR    LDA     #HEIGHT
           BIT     TEMP0
           LDY     P0VOFF
           BEQ     NXTP0
           BVC     WASTCAS
           JMP     WASTE102               ;3 NOP'S THEN POS BOTH
+
 NXTP0     STA     P0VOFF
           BVC     DODP0PP1
           STA     HMCLR
           JMP     DP0PP1PF
+
 DODP0PP1  NOP
           JMP     DP0DP1PF
+
 WASTCAS   NOP
           NOP
           NOP
           STA     HMCLR
 PP0DP1PF  STA     HMCLR                  ;3
           TXA                            ;5
-          LSR                      ;7
+          LSR                            ;7
           LDY     MPTR                   ;10
           LDA     PF,X                   ;14
           BEQ     UNINCM                 ;16/17
@@ -3898,9 +3941,11 @@ UNINC     LDY     #0                     ;27
           STA     PF2+$100
           STY     PF1
           JMP     PP0DP1
+
 PF1OK     STY     PF2
           STA     PF1
           JMP     PP0DP1
+
 UNINCM    STA     HMCLR                  ;20
           NOP                            ;22
           BEQ     UNINC                  ;25
@@ -3982,6 +4027,7 @@ DONE3     LDA     (PTR0),Y               ;63
           LDX     ZONECNT                ;9
           BNE     MORE                   ;11/12
           JMP     ENDKERN                ;14
+
 MORE      INC     PTR0                   ;17
           INC     PTR1                   ;22
           BIT     TEMP0                  ;25
@@ -3989,16 +4035,19 @@ MORE      INC     PTR0                   ;17
           BVC     WASTEDD                ;29/30
           NOP
           JMP     DP0PP1PF               ;25
+
 GOTOP0    BVC     DOPP0DP1               ;30/31
           STA     HMCLR+$100             ;34
           JMP     OHMY                   ;37
+
 DOPP0DP1  JMP     PP0DP1PF               ;27
+
           ;PADDING AS NEEDED
 WASTEDD   NOP
           NOP
 DP0DP1PF  STA     HMCLR                  ;26
           TXA                            ;28
-          LSR                      ;30
+          LSR                            ;30
           LDY     MPTR                   ;33
           LDA     PF,X                   ;37
           BEQ     NOINCMK                ;39/40
@@ -4009,19 +4058,21 @@ NOINCM    LDY     #0                     ;50
           STA     PF2+$100               ;55
           STY     PF1                    ;58
           JMP     DP0DP1                 ;61
+
 PF1IN     STY     PF2                    ;56
           STA     PF1                    ;59
           JMP     DP0DP1                 ;62
+
 NOINCMK   STA     HMCLR
           NOP
           BEQ     NOINCM
 
 ;THIS TABLE IS HERE FOR PAGE BOUNDARY CROSSING PROTECTION
 
-MTABLE    DC      $00,$00,$FF,$00
-          DC      $FF,$FF,$FF,$FF
-          DC      $00,$FF,$00,$00
-          DC      $FF,$FF,$00
+MTABLE    dc      $00,$00,$FF,$00
+          dc      $FF,$FF,$FF,$FF
+          dc      $00,$FF,$00,$00
+          dc      $FF,$FF,$00
 ;DRAW PLAYER0
 ;RASTER 1
 DP0PP1    STA     WSYNC
@@ -4099,16 +4150,19 @@ DONE30A   LDA     (PTR0),Y               ;57
           BVC     WASTE0                 ;26/27
           STA     HMCLR                  ;29
           JMP     WASTE101               ;32      1 NOP'S THEN POS BOTH
+
 NXTP1     STA     P1VOFF                 ;28
           BVC     DPP0DP1                ;30/31
           JMP     PP0DP1PF               ;33
+
 DPP0DP1   JMP     DP0DP1PF               ;34
+
 WASTE0    NOP
           STA     HMCLR
 WASTE303  NOP
 DP0PP1PF  STA     HMCLR                  ;30
           TXA                            ;32
-          LSR                      ;34
+          LSR                            ;34
           LDY     MPTR                   ;37
           LDA     PF,X                   ;41
           BEQ     UNINCMX                ;43/44
@@ -4119,9 +4173,11 @@ UNINCX    LDY     #0                     ;54
           STA     PF2+$100               ;59
           STY     PF1                    ;62
           JMP     DP0PP1                 ;65
+
 PF10K     STY     PF2                    ;60
           STA     PF1                    ;63
           JMP     DP0PP1                 ;66
+
 UNINCMX   STA     HMCLR
           NOP
           BEQ     UNINCX                 ;47
@@ -4158,7 +4214,7 @@ LOOPER    LDA     PTR1
           JMP     RESTLOAD
 
 ENDKERN
-          LDA     #>ZERO               ;17
+          LDA     #>(ZERO)               ;17
           STA     PTR0H                  ;20
           STA     PTR1H                  ;23
           STA     PTR2H                  ;26
@@ -4166,7 +4222,7 @@ ENDKERN
           STA     PTR4H                  ;32
           LDA     #$26                   ;34
           STA     COLUPF                 ;37
-          LDY     #<BLANK              ;39
+          LDY     #<(BLANK)              ;39
           LDA     CFIGINDX               ;42
           CMP     #2                     ;44
           BMI     NOTHING                ;46/47
@@ -4176,9 +4232,9 @@ NOTHING   LDA     GAMETYPE               ;52
           CMP     #2                     ;54
           BCC     NONTED                 ;56/57
 
-          LDA     #>TEDDY              ;58
+          LDA     #>(TEDDY)              ;58
           STA     PTR0H                  ;61
-          LDA     #<TEDDY              ;63
+          LDA     #<(TEDDY)              ;63
           STA     PTR0                   ;66
           BCS     NEXT3                  ;69
 
@@ -4188,7 +4244,7 @@ NONTED    SEC                            ;59
           BNE     DOIT4                  ;66/67
           STY     PTR0                   ;69
           BEQ     NEXT3                  ;72
-DOIT4     LSR                      ;69
+DOIT4     LSR                            ;69
           STA     PTR0                   ;72
 NEXT3     STA     WSYNC                  ;75
 
@@ -4210,9 +4266,9 @@ NOTED     LDA     HISCORE                ;33
           BNE     DOIT3                  ;39/40
 SUCKER    STY     PTR1                   ;42
           BEQ     NEXT2                  ;45
-DOIT3     ASL                      ;42
-          ASL                      ;44
-          ASL                      ;46
+DOIT3     ASL                            ;42
+          ASL                            ;44
+          ASL                            ;46
           STA     PTR1                   ;49
 NEXT2
           LDA     MIDSCORE               ;52
@@ -4221,7 +4277,7 @@ NEXT2
           BNE     DOIT2                  ;58/59
           STY     PTR2                   ;61
           BEQ     NEXT1                  ;64
-DOIT2     LSR                      ;61
+DOIT2     LSR                            ;61
           STA     PTR2                   ;64
 NEXT1     LDA     MIDSCORE               ;67
           AND     #$0F                   ;69
@@ -4233,9 +4289,9 @@ NEXT1     LDA     MIDSCORE               ;67
           NOP
           BEQ     NEXT0                  ;14
 DOIT1A    NOP                            ;5
-DOIT1     ASL                      ;7
-          ASL                      ;9
-          ASL                      ;11
+DOIT1     ASL                            ;7
+          ASL                            ;9
+          ASL                            ;11
           STA     PTR3                   ;14
 NEXT0     LDA     LOWSCORE               ;17
           AND     #$F0                   ;19
@@ -4244,17 +4300,17 @@ NEXT0     LDA     LOWSCORE               ;17
           STY     PTR4                   ;26
           BEQ     NOMORE                 ;29
 DOIT0A    NOP                            ;24
-DOIT0     LSR                      ;26
+DOIT0     LSR                            ;26
           STA     PTR4                   ;29
 NOMORE    LDA     #$28                   ;36
           STA     COLUP0                 ;39
           STA     COLUP1                 ;42
-          LDA     #>ZERO
+          LDA     #>(ZERO)
           STA     PTR5H
           LDY     #$6                    ;44
-          LDA     #>RETURN-1           ;46
+          LDA     #>(RETURN-1)           ;46
           PHA                            ;49
-          LDA     #<RETURN-1           ;51
+          LDA     #<(RETURN-1)           ;51
           PHA                            ;54
           LDA     #$1                    ;56
           STA     PF2                    ;59
@@ -4269,7 +4325,7 @@ NOMORE    LDA     #$28                   ;36
 RETURN
           LDA     GAMETYPE               ;22
           CMP     #2                     ;24
-          LDY     #<BLANK              ;26
+          LDY     #<(BLANK)              ;26
           BCS     OEXT3                  ;28/29
           SEC                            ;30
           LDA     HISCORE+1              ;33
@@ -4277,7 +4333,7 @@ RETURN
           BNE     OOIT4                  ;37/38
           STY     PTR0                   ;40
           BEQ     OEXT3                  ;43
-OOIT4     LSR                      ;40
+OOIT4     LSR                            ;40
           STA     PTR0                   ;43
 OEXT3     LDA     HISCORE+1              ;46
           AND     #$0F                   ;48
@@ -4285,9 +4341,9 @@ OEXT3     LDA     HISCORE+1              ;46
           BNE     OOIT3                  ;52/53
           STY     PTR1                   ;55
           BEQ     OEXT2                  ;58
-OOIT3     ASL                      ;55
-          ASL                      ;57
-          ASL                      ;59
+OOIT3     ASL                            ;55
+          ASL                            ;57
+          ASL                            ;59
           STA     PTR1                   ;62
 OEXT2     LDA     MIDSCORE+1             ;65
           AND     #$F0                   ;67
@@ -4297,7 +4353,7 @@ OEXT2     LDA     MIDSCORE+1             ;65
           STY     PTR2                   ;3
           BEQ     OEXT1                  ;6
 OOIT2     STA     WSYNC                  ;75
-          LSR                      ;2
+          LSR                            ;2
           STA     PTR2                   ;5
 OEXT1     LDA     #$FF                   ;8
           STA     PF2                    ;11
@@ -4307,9 +4363,9 @@ OEXT1     LDA     #$FF                   ;8
           BNE     OOIT1                  ;20/21
           STY     PTR3                   ;23
           BEQ     OEXT0                  ;26
-OOIT1     ASL                      ;23
-          ASL                      ;25
-          ASL                      ;27
+OOIT1     ASL                            ;23
+          ASL                            ;25
+          ASL                            ;27
           STA     PTR3                   ;30
 OEXT0     LDA     LOWSCORE+1             ;33
           AND     #$F0                   ;35
@@ -4317,14 +4373,14 @@ OEXT0     LDA     LOWSCORE+1             ;33
           BNE     OOIT0                  ;39/40
           STY     PTR4                   ;42
           BEQ     OOMORE                 ;45
-OOIT0     LSR                      ;42
+OOIT0     LSR                            ;42
           STA     PTR4                   ;45
 OOMORE    LDY     #6                     ;47
           LDA     #$76                   ;49
           STA     COLUP0                 ;52
           STA     COLUP1                 ;55
           LDA     GAMETYPE               ;58
-          LSR                      ;60
+          LSR                            ;60
           BCC     DOBITMAP               ;62/63
           LDA     #1                     ;64
           STA     PF2                    ;67
@@ -4333,7 +4389,7 @@ DOBITMAP  JSR     BITMAP                 ;73  WORST CASE
           STA     HMP0                   ;60
           LDA     #$80                   ;62
           STA     HMP1                   ;65
-          LDX     #<BLANK              ;5
+          LDX     #<(BLANK)              ;5
           LDY     #$FF                   ;67
           STA     WSYNC                  ;75
           STA     HMOVE                  ;3
@@ -4345,9 +4401,9 @@ DOBITMAP  JSR     BITMAP                 ;73  WORST CASE
 CMP10     CMP     #10                    ;13
           BCC     AROO                   ;15/16
           LDA     #9                     ;17
-AROO      ASL                      ;19
-          ASL                      ;21
-          ASL                      ;23
+AROO      ASL                            ;19
+          ASL                            ;21
+          ASL                            ;23
 STPR0     STA     PTR0                   ;26
           LDA     GAMETYPE               ;34
           LSR
@@ -4359,9 +4415,9 @@ DOBLNK    TXA                            ;38
 CMP10A    CMP     #10                    ;39
           BCC     ARF                    ;41/42
           LDA     #9                     ;43
-ARF       ASL                      ;45
-          ASL                      ;47
-          ASL                      ;49
+ARF       ASL                            ;45
+          ASL                            ;47
+          ASL                            ;49
 STPR1     STA     PTR1                   ;52
           LDY     #6                     ;54
           LDX     #2                     ;56
@@ -4371,7 +4427,7 @@ STPR1     STA     PTR1                   ;52
           STA     WSYNC                  ;70
           LDA     #0
           STA     PF2
-          LDA     #>ZERO
+          LDA     #>(ZERO)
           STA     PTR0H
           STA     WSYNC                  ;29
           STX     COLUP0                 ;67
@@ -4411,7 +4467,7 @@ LIFLUP    LDA     (PTR0),Y               ;8
 
           JMP     NEWFRAME
 
-/* VISIBLE ====================================================================== */
+;* VISIBLE ======================================================================
 
 TTLKERN
           LDA     #3                     ;23     NEED VERT. DELAY AND NUSIZE
@@ -4434,30 +4490,30 @@ TTLKERN
           LDA     PLAYCOL                ;3      STORE PLAYER COLORS FOR BITMAP
           STA     COLUP0                 ;6
           STA     COLUP1                 ;9
-          LDA     #<LOGO0              ;11     POINTERS ARE LOW BYTE PLUS
+          LDA     #<(LOGO0)              ;11     POINTERS ARE LOW BYTE PLUS
           CLC                            ;13     LINECNT SO THAT THE TOP IS
           ADC     LINECNT                ;16     ALWAYS DRAWN
           STA     PTR0                   ;19
-          LDA     #<LOGO1              ;21     CARRY REMAINS CLEAR THROUGHOUT
+          LDA     #<(LOGO1)              ;21     CARRY REMAINS CLEAR THROUGHOUT
           ADC     LINECNT                ;24
           STA     PTR1                   ;27
-          LDA     #<LOGO2              ;29
+          LDA     #<(LOGO2)              ;29
           ADC     LINECNT                ;32
           STA     PTR2                   ;35
-          LDA     #<LOGO3              ;37
+          LDA     #<(LOGO3)              ;37
           ADC     LINECNT                ;40
           STA     PTR3                   ;43
-          LDA     #<LOGO4              ;45
+          LDA     #<(LOGO4)              ;45
           ADC     LINECNT                ;48
           STA     PTR4                   ;51
-          LDA     #<LOGO5              ;53
+          LDA     #<(LOGO5)              ;53
           ADC     LINECNT                ;58
           STA     PTR5                   ;61
           LDA     #$52                   ;63     COLOR OF PLAYFIELD BOX
           STA     COLUPF                 ;66
           STA     WSYNC                  ;69
 
-          LDA     #>LOGO0              ;2
+          LDA     #>(LOGO0)              ;2
           STA     PTR0H                  ;5      STORE HIGH POINTERS
           STA     PTR1H                  ;8
           STA     PTR2H                  ;11
@@ -4499,24 +4555,24 @@ NOBITM    STA     WSYNC                  ;END OF BLANK LINE UNDER JOUST
           STX     PF2
           LDA     LINECNT                ;22     IF LINECNT = 0, DO COPYRIGHT
           BNE     VWLOOP                 ;24/25
-          LDA     #>COPY0              ;26     SET HIGH BYTES
+          LDA     #>(COPY0)              ;26     SET HIGH BYTES
           STA     PTR0H                  ;29
           STA     PTR1H                  ;32
           STA     PTR2H                  ;35
           STA     PTR3H                  ;38
           STA     PTR4H                  ;41
           STA     PTR5H                  ;44
-          LDA     #<COPY0              ;46     AND LOW BYTES
+          LDA     #<(COPY0)              ;46     AND LOW BYTES
           STA     PTR0                   ;49
-          LDA     #<COPY1              ;51
+          LDA     #<(COPY1)              ;51
           STA     PTR1                   ;54
-          LDA     #<COPY2              ;56
+          LDA     #<(COPY2)              ;56
           STA     PTR2                   ;59
-          LDA     #<COPY3              ;61
+          LDA     #<(COPY3)              ;61
           STA     PTR3                   ;64
-          LDA     #<COPY4              ;66
+          LDA     #<(COPY4)              ;66
           STA     PTR4                   ;69
-          LDA     #<COPY5              ;71
+          LDA     #<(COPY5)              ;71
           STA     WSYNC                  ;74
           STA     PTR5                   ;3
           STA     HMCLR                  ;6      CLEAR OUT HM'S
@@ -4530,7 +4586,7 @@ CPWAIT    STA     WSYNC
           BNE     CPWAIT
           JSR     MINBIT
 
-
+;***********
                               ;NOW LET TIMER RUN OUT FOR END OF SCREEN
 VWLOOP    LDA     INTIM
           BNE     VWLOOP
@@ -4538,7 +4594,7 @@ VWLOOP    LDA     INTIM
 
 
 
-/* OVERSCAN =====================================================================*/
+;* OVERSCAN =====================================================================
 
 NEWFRAME  LDA     #$24                   ; (35 decimal)
           STA     TIM64T
@@ -4546,7 +4602,7 @@ NEWFRAME  LDA     #$24                   ; (35 decimal)
 ;         JSR     FRZEOS                 ;COMMENT THIS OUT FOR NO FREEZE FRAMER
                                          ;OR TO BURN A CART
                                          ;MAY NOT HAVE ROM FOR THIS NOW
-/*         GAME OVERSCAN MAINLINE */
+;*         GAME OVERSCAN MAINLINE
 
 GPENTRY   INC     FRMCNT
           BNE     NOALT
@@ -4585,7 +4641,7 @@ DOASET    JSR     GMINIT
           LDA     #0
           STA     SNDTYP0
           STA     SNDTYP1
-          LDX     #5		;CLEAR SCORE
+          LDX     #5                     ;CLEAR SCORE
           STA     SCNTRLI0
           STA     SCNTRLI1
 SCOREZIP  STA     HISCORE,X
@@ -4750,7 +4806,7 @@ P050
 
 GMINIT
 
-          LDX     #ITITI	;SET UP TERRY TIMER...
+          LDX     #ITITI                 ;SET UP TERRY TIMER...
           STX     TITIMNDX
           LDA     #11
           STA     TERYTIME
@@ -4794,131 +4850,142 @@ ENDD
 
 
 
-DUR       DC      $00,$02,$00,$00,$00,$02,$03,$0D,$00,$02,$01,$02
-          DC      1,0,1
+DUR       dc      $00,$02,$00,$00,$00,$02,$03,$0D,$00,$02,$01,$02
+          dc      1,0,1
 
-LVTABL    DC      <WALKVOL
-          DC      <FLAPVOL,<BNCEVOL
-          DC      <NULL,<NULL
-          DC      <EXPLVOL,<BRTHVOL
-          DC      <NULL,<NULL
-          DC      <TIEDVOL
-          DC      <NULL,<NULL
-          DC      <EGGHHVOL,<EATEGVOL
-          DC      <EXTRVOL
-COLORTAB  DC      $0E,$0A,$08,$06,$0A,$08,$06,0
-          DC      $2A,$78,$56,$08,$D8,$C8,$46
-SCNTRLS   DC      6,8,4,4,0,8,$D,7,0,4,7,3,8,4,4
+LVTABL    dc      <(WALKVOL)
+          dc      <(FLAPVOL),<(BNCEVOL)
+          dc      <(NULL),<(NULL)
+          dc      <(EXPLVOL),<(BRTHVOL)
+          dc      <(NULL),<(NULL)
+          dc      <(TIEDVOL)
+          dc      <(NULL),<(NULL)
+          dc      <(EGGHHVOL),<(EATEGVOL)
+          dc      <(EXTRVOL)
+COLORTAB  dc      $0E,$0A,$08,$06,$0A,$08,$06,0
+          dc      $2A,$78,$56,$08,$D8,$C8,$46
+SCNTRLS   dc      6,8,4,4,0,8,$D,7,0,4,7,3,8,4,4
 ENDDC
 
-/*         THE FOLLOWING ARE PLAYER STAMPS  */
+;*         THE FOLLOWING ARE PLAYER STAMPS
 
-          ORG     $DD00
+          ORG     $2d00
+          RORG    $DD00
 ;ALL STAMPS ON THIS PAGE HAVE BEEN PACKED .  DON'T TOUCH WITHOUT CARE
-          DC      0,0,0
-RWALK0    DC      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$60,$70,$18,$40,$60,0
-          DC      0,0,0,0
-RWALK1    DC      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$30,$60,$30,$20,$30,0
-          DC      0,0,0,0
-RWALK2    DC      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$70,$50,$50,$90,$08,0
-          DC      0,0,0,0
-RWALK3    DC      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$30,$28,$28,$24,$24,0
-          DC      0,0,0,0
-RSKID     DC      $0C,$6E,$4C,$68,$7F,$34,$7A,$FE,$FC,$78,$28,$24,$12,$00,$00,0
-          DC      0,0,0,0
-RWINGDWN  DC      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$70,$60,$40,$00,$00,0
-          DC      0,0,0,0
-RWINGUP   DC      $06,$B7,$E6,$F2,$FF,$F2,$7A,$FE,$FC,$78,$10,$00,$00,$00,$00,0
-          DC      0
-REXPL0    DC      $00,$00,$00,$08,$1C,$36,$1C,$08,$00,$00,$00,$00,$00,$00,$00,0
-          DC      0,0
-REXPL1    DC      $00,$00,$49,$2A,$1C,$77,$1C,$2A,$49,$00,$00,$00,$00,$00,$00,0
-          DC      0,0,0,0
-REXPL2    DC      $14,$08,$49,$22,$00,$63,$00,$22,$49,$08,$14,$00,$00,$00,$00,0
-          DC      0,0,0,0
-RTERYWUP  DC      $00,$E0,$71,$3E,$74,$FE,$7D,$00,$00,$00,$00,$00,$00,$00,$00,0
-          DC      0,0
-RTERYWDN  DC      $00,$00,$00,$0F,$74,$FF,$7C,$38,$70,$E0,$00,$00,$00,$00,$00,0
-          DC      0,0,0,0
-EGG       DC      $18,$3C,$7C,$7C,$38,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,0
-          DC      0,0,0,0
+          dc      0,0,0
+RWALK0    dc      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$60,$70,$18,$40,$60,0
+          dc      0,0,0,0
+RWALK1    dc      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$30,$60,$30,$20,$30,0
+          dc      0,0,0,0
+RWALK2    dc      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$70,$50,$50,$90,$08,0
+          dc      0,0,0,0
+RWALK3    dc      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$30,$28,$28,$24,$24,0
+          dc      0,0,0,0
+RSKID     dc      $0C,$6E,$4C,$68,$7F,$34,$7A,$FE,$FC,$78,$28,$24,$12,$00,$00,0
+          dc      0,0,0,0
+RWINGDWN  dc      $06,$37,$26,$32,$3F,$32,$7A,$FE,$FC,$78,$70,$60,$40,$00,$00,0
+          dc      0,0,0,0
+RWINGUP   dc      $06,$B7,$E6,$F2,$FF,$F2,$7A,$FE,$FC,$78,$10,$00,$00,$00,$00,0
+          dc      0
+REXPL0    dc      $00,$00,$00,$08,$1C,$36,$1C,$08,$00,$00,$00,$00,$00,$00,$00,0
+          dc      0,0
+REXPL1    dc      $00,$00,$49,$2A,$1C,$77,$1C,$2A,$49,$00,$00,$00,$00,$00,$00,0
+          dc      0,0,0,0
+REXPL2    dc      $14,$08,$49,$22,$00,$63,$00,$22,$49,$08,$14,$00,$00,$00,$00,0
+          dc      0,0,0,0
+RTERYWUP  dc      $00,$E0,$71,$3E,$74,$FE,$7D,$00,$00,$00,$00,$00,$00,$00,$00,0
+          dc      0,0
+RTERYWDN  dc      $00,$00,$00,$0F,$74,$FF,$7C,$38,$70,$E0,$00,$00,$00,$00,$00,0
+          dc      0,0,0,0
+EGG       dc      $18,$3C,$7C,$7C,$38,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,0
+          dc      0,0,0,0
 ENDSTAMP
 ENDDD
-          ORG     $DE00
+          ORG     $2e00
+          RORG    $DE00
 
-ZERO      DC      $38,$6C,$6C,$6C,$6C,$7C,$38,0
-ONE       DC      $7E,$18,$18,$18,$18,$58,$38,0
-TWO       DC      $7E,$7A,$38,$1C,$0C,$6C,$38,0
-THREE     DC      $38,$6C,$0C,$18,$0C,$6C,$38,0
-FOUR      DC      $1C,$0C,$FE,$CC,$6C,$3C,$1C,0
-FIVE      DC      $38,$6C,$0C,$6C,$78,$40,$7C,0
-SIX       DC      $38,$6C,$6C,$78,$60,$6C,$38,0
-SEVEN     DC      $70,$70,$30,$18,$4C,$64,$7C,0
-EIGHT     DC      $38,$6C,$6C,$38,$6C,$6C,$38,0
-NINE      DC      $38,$18,$0C,$3C,$66,$66,$3C,0
-BLANK     DC      $00,$00,$00,$00
+ZERO      dc      $38,$6C,$6C,$6C,$6C,$7C,$38,0
+ONE       dc      $7E,$18,$18,$18,$18,$58,$38,0
+TWO       dc      $7E,$7A,$38,$1C,$0C,$6C,$38,0
+THREE     dc      $38,$6C,$0C,$18,$0C,$6C,$38,0
+FOUR      dc      $1C,$0C,$FE,$CC,$6C,$3C,$1C,0
+FIVE      dc      $38,$6C,$0C,$6C,$78,$40,$7C,0
+SIX       dc      $38,$6C,$6C,$78,$60,$6C,$38,0
+SEVEN     dc      $70,$70,$30,$18,$4C,$64,$7C,0
+EIGHT     dc      $38,$6C,$6C,$38,$6C,$6C,$38,0
+NINE      dc      $38,$18,$0C,$3C,$66,$66,$3C,0
+BLANK     dc      $00,$00,$00,$00
 
 ;GRAPHICS FOR JOUST LOGO
-LOGO0     DC      0,0,0,$FE,$FF,$FF,$FF,$FF,$FF,$07,$03,$03,$03,$03,$03,$03
-          DC      $03,$43,$63,$73,$7F,$3F,$3F,$1F,$0F,$03,0,0
+LOGO0     dc      0,0,0,$FE,$FF,$FF,$FF,$FF,$FF,$07,$03,$03,$03,$03,$03,$03
+          dc      $03,$43,$63,$73,$7F,$3F,$3F,$1F,$0F,$03,0,0
 
-LOGO1     DC      0,$0F,$1F,$1F,$3F,$3F,$BF,$BF,$F9,$F9,$F0,$F0,$F0,$F0,$F0
-          DC      $F0,$F0,$F0,$F0,$F0,$F9,$B9,$BF,$BF,$DF,$DF,$DF,$0F,0
+LOGO1     dc      0,$0F,$1F,$1F,$3F,$3F,$BF,$BF,$F9,$F9,$F0,$F0,$F0,$F0,$F0
+          dc      $F0,$F0,$F0,$F0,$F0,$F9,$B9,$BF,$BF,$DF,$DF,$DF,$0F,0
 
-LOGO2     DC      $03,$07,$8F,$8F,$DF,$DF,$DF,$DE,$FC,$FC,$F8,$F8,$F8,$F8,$F8
-          DC      $F8,$F8,$F8,$F8,$F8,$F8,$D8,$DC,$DC,$DC,$8C,$8C,$1C,$3E
+LOGO2     dc      $03,$07,$8F,$8F,$DF,$DF,$DF,$DE,$FC,$FC,$F8,$F8,$F8,$F8,$F8
+          dc      $F8,$F8,$F8,$F8,$F8,$F8,$D8,$DC,$DC,$DC,$8C,$8C,$1C,$3E
 
-LOGO3     DC      $80,$C1,$E7,$EF,$FF,$FF,$FF,$FE,$7C,$78,$38,$38,$38,$39,$3B
-          DC      $3F,$3F,$3F,$3F,$3F,$3F,$3F,$77,$77,$73,$63,$61,$60,$F0
+LOGO3     dc      $80,$C1,$E7,$EF,$FF,$FF,$FF,$FE,$7C,$78,$38,$38,$38,$39,$3B
+          dc      $3F,$3F,$3F,$3F,$3F,$3F,$3F,$77,$77,$73,$63,$61,$60,$F0
 
-LOGO4     DC      0,$F0,$F8,$FD,$FF,$FF,$1F,$0F,$0F,$1F,$3F,$7F,$FD,$FD,$F9
-          DC      $F0,$E0,$C0,$82,$03,$07,$8F,$9F,$FF,$FE,$FC,$F8,$F0
+LOGO4     dc      0,$F0,$F8,$FD,$FF,$FF,$1F,$0F,$0F,$1F,$3F,$7F,$FD,$FD,$F9
+          dc      $F0,$E0,$C0,$82,$03,$07,$8F,$9F,$FF,$FE,$FC,$F8,$F0
 
-LOGO5     DC      0,0,0,$FF,$FF,$FF,$FF,$FF,$FF,$E0,$C0,$C0,$C0,$E0,$E0,$E0
-          DC      $F0,$70,$FF,$FF,$FF,$FF,$FE,$F8,$F8,$98,$0C,$04,0
+LOGO5     dc      0,0,0,$FF,$FF,$FF,$FF,$FF,$FF,$E0,$C0,$C0,$C0,$E0,$E0,$E0
+          dc      $F0,$70,$FF,$FF,$FF,$FF,$FE,$F8,$F8,$98,$0C,$04,0
 
 
 ENDDE
-          ORG     $DF00
+          ORG     $2f00
+          RORG    $DF00
 
-MTINDX    DC      4,7,7,4
-          DC      2,10,0,4
-          DC      3,11,0,4
-          DC      5,7,0
+MTINDX    dc      4,7,7,4
+          dc      2,10,0,4
+          dc      3,11,0,4
+          dc      5,7,0
 
 
-HTABLE    DC      $60,$50,$40,$30,$20,$10,$00,$F0,$E0,$D0,$C0,$B0,$A0,$90,$80
-          DC      $61,$51,$41,$31,$21,$11,$01,$F1,$E1,$D1,$C1,$B1,$A1,$91,$81
-          DC      $62,$52,$42,$32,$22,$12,$02,$F2,$E2,$D2,$C2,$B2,$A2,$92,$82
-          DC      $63,$53,$43,$33,$23,$13,$03,$F3,$E3,$D3,$C3,$B3,$A3,$93,$83
-          DC      $64,$54,$44,$34,$24,$14,$04,$F4,$E4,$D4,$C4,$B4,$A4,$94,$84
-          DC      $65,$55,$45,$35,$25,$15,$05,$F5,$E5,$D5,$C5,$B5,$A5,$95,$85
-          DC      $66,$56,$46,$36,$26,$16,$06,$F6,$E6,$D6,$C6,$B6,$A6,$96,$86
-          DC      $67,$57,$47,$37,$27,$17,$07,$F7,$E7,$D7,$C7,$B7,$A7,$97,$87
-          DC      $68,$58,$48,$38,$28,$18,$08,$F8,$E8,$D8,$C8,$B8,$A8,$98,$88
+HTABLE    dc      $60,$50,$40,$30,$20,$10,$00,$F0,$E0,$D0,$C0,$B0,$A0,$90,$80
+          dc      $61,$51,$41,$31,$21,$11,$01,$F1,$E1,$D1,$C1,$B1,$A1,$91,$81
+          dc      $62,$52,$42,$32,$22,$12,$02,$F2,$E2,$D2,$C2,$B2,$A2,$92,$82
+          dc      $63,$53,$43,$33,$23,$13,$03,$F3,$E3,$D3,$C3,$B3,$A3,$93,$83
+          dc      $64,$54,$44,$34,$24,$14,$04,$F4,$E4,$D4,$C4,$B4,$A4,$94,$84
+          dc      $65,$55,$45,$35,$25,$15,$05,$F5,$E5,$D5,$C5,$B5,$A5,$95,$85
+          dc      $66,$56,$46,$36,$26,$16,$06,$F6,$E6,$D6,$C6,$B6,$A6,$96,$86
+          dc      $67,$57,$47,$37,$27,$17,$07,$F7,$E7,$D7,$C7,$B7,$A7,$97,$87
+          dc      $68,$58,$48,$38,$28,$18,$08,$F8,$E8,$D8,$C8,$B8,$A8,$98,$88
 
 
 ;GRAPHICS FOR COPYRIGHT (38 BYTES)
-COPY0     DC      $06,$09,$16,$14,$16,$09,$06
-COPY1     DC      0,$29,$A9,$B9,$A9,$13
-COPY2     DC      0,$2A,$2A,$3B,$2A,$93
-COPY3     DC      0,$A3,$A1,$21,$A3,$A1
-COPY4     DC      0,$97,$15,$77,$55,$77
-COPY5     DC      0,$70,$10,$30,$10,$70,0
+COPY0     dc      $06,$09,$16,$14,$16,$09,$06
+COPY1     dc      0,$29,$A9,$B9,$A9,$13
+COPY2     dc      0,$2A,$2A,$3B,$2A,$93
+COPY3     dc      0,$A3,$A1,$21,$A3,$A1
+COPY4     dc      0,$97,$15,$77,$55,$77
+COPY5     dc      0,$70,$10,$30,$10,$70,0
 
-LIVES0    DC      $EE,$82,$82,$CE,$88,$88,$EE
+LIVES0    dc      $EE,$82,$82,$CE,$88,$88,$EE
 
-PF        DC      $00,$00,$00,$00,$00,$00,$00
-          DC      $00,$00,$00,$00,$00,$00,$F0,$00,$00,$00,$00,$FF,$00,$00,$00
-          DC      $00,$00,$00,$00,$00,$F8,$00,$00,$00,$00,$FC,$00,$00,$00,$00
-          DC      $00,$00,$00,$00
+PF        dc      $00,$00,$00,$00,$00,$00,$00
+          dc      $00,$00,$00,$00,$00,$00,$F0,$00,$00,$00,$00,$FF,$00,$00,$00
+          dc      $00,$00,$00,$00,$00,$F8,$00,$00,$00,$00,$FC,$00,$00,$00,$00
+          dc      $00,$00,$00,$00
 
 ENDDF
 
-          ORG     $DFF2
+          ORG     $2FF2
+          RORG    $DFF2
+  IF ORIGINAL
 GOBANKF   JMP     DOBANKF
+  ELSE
+GOBANKF   sta     $fff8
+  ENDIF
+
 DOBANKD   JMP     DLOAD
 
-          ORG     $DFFC
-          DC      <START,>START
-          END     $F000
+          ORG     $2FFC
+          RORG    $DFFC
+          dc      <(START),>(START)
+;          END     $F000
+          dc      $ff, $ff
