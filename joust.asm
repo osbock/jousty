@@ -4487,7 +4487,7 @@ TTLKERN
           STA     HMP1                   ;63
           STA     WSYNC                  ;66
 
-          LDA     PLAYCOL                ;3      STORE PLAYER COLORS FOR BITMAP
+          LDA     PLAYCOL	         ;3      STORE PLAYER COLORS FOR BITMAP
           STA     COLUP0                 ;6
           STA     COLUP1                 ;9
           LDA     #<(LOGO0)              ;11     POINTERS ARE LOW BYTE PLUS
@@ -4830,7 +4830,7 @@ STY1      STA     YPOSINT+1
           STA     STATES
           STA     STATES+1
 
-          LDX     #4
+          LDX     #9
           STX     LIVES
           STX     LIVES+1
           LDX     #1                     ;SETS UP END OF RACK FF
@@ -4923,9 +4923,22 @@ LOGO0     dc      0,0,0,$FE,$FF,$FF,$FF,$FF,$FF,$07,$03,$03,$03,$03,$03,$03
 LOGO1     dc      0,$0F,$1F,$1F,$3F,$3F,$BF,$BF,$F9,$F9,$F0,$F0,$F0,$F0,$F0
           dc      $F0,$F0,$F0,$F0,$F0,$F9,$B9,$BF,$BF,$DF,$DF,$DF,$0F,0
 
+	/* John logo mod */
+LOGO2	  dc	  0,$3f,$1e,$9c,$9c,$9c,$9c,$fc,$fc,$fc,$fc,$fc,$fc,$fc
+          dc	  $fe,$ff,$ff,$fe,$fc,$fc,$dc,$dc,$dc,$9c,$9c,$9c,$1c,$3e
+
+LOGO3	  dc	  0,$1f,$0f,$06,$06,$06,$06,$06,$06,$06,$06,$06,$06,$06
+	  dc      $0e,$fe,$fe,$0e,$06,$06,$06,$06,$06,$06,$07,$07,$0e,$1f
+
+LOGO4     dc      0,$80,$0,$e0,$c0,$c0,$c0,$c0,$c0,$c0,$c1,$c1,$c3,$c3,$c7
+          dc	  $c6,$ce,$cc,$cc,$f8,$f8,$f0,$f0,$e0,$e0,$e0,$0,$0
+
+LOGO5     dc      0,$0,$0,$0f,$3e,$3e,$7e,$7e,$ee,$cc,$cc,$8c,$8c,$8c,$0c
+	  dc      $0c,$0c,$0c,$0c,$0c,$0c,$0c,$0c,$0c,$0e,$1f,$0,$0,$0
+	
+/*
 LOGO2     dc      $03,$07,$8F,$8F,$DF,$DF,$DF,$DE,$FC,$FC,$F8,$F8,$F8,$F8,$F8
           dc      $F8,$F8,$F8,$F8,$F8,$F8,$D8,$DC,$DC,$DC,$8C,$8C,$1C,$3E
-
 LOGO3     dc      $80,$C1,$E7,$EF,$FF,$FF,$FF,$FE,$7C,$78,$38,$38,$38,$39,$3B
           dc      $3F,$3F,$3F,$3F,$3F,$3F,$3F,$77,$77,$73,$63,$61,$60,$F0
 
@@ -4934,8 +4947,7 @@ LOGO4     dc      0,$F0,$F8,$FD,$FF,$FF,$1F,$0F,$0F,$1F,$3F,$7F,$FD,$FD,$F9
 
 LOGO5     dc      0,0,0,$FF,$FF,$FF,$FF,$FF,$FF,$E0,$C0,$C0,$C0,$E0,$E0,$E0
           dc      $F0,$70,$FF,$FF,$FF,$FF,$FE,$F8,$F8,$98,$0C,$04,0
-
-
+*/	
 ENDDE
           ORG     $2f00
           RORG    $DF00
